@@ -22,8 +22,7 @@ const {
   disconnect,
   connected,
   setCurrentScene,
-  setSourceVisibility,
-  setSourceText,
+  displayHymn,
 } = useObs()
 
 const { hymnIndex, hymnData, searchHymn, fileUrl } = useHymn()
@@ -50,6 +49,16 @@ function dismissVolume(event: KeyboardEvent) {
   ;(event.currentTarget as HTMLElement).querySelector<HTMLButtonElement>('[aria-controls="volume-controls"]')?.focus()
 }
 const audioError = ref('')
+const obsError = ref('')
+
+async function updateObs(title: boolean, number: string, text: string) {
+  try {
+    await displayHymn(title, number, text)
+    obsError.value = ''
+  } catch {
+    obsError.value = 'No se pudo actualizar la salida de OBS. Revisa la conexión e intenta nuevamente.'
+  }
+}
 function formatTime(value: number) {
   const seconds = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0
   return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0')
@@ -110,13 +119,6 @@ watch(hymnIndex, async (index) => {
     return
   }
   await showVerse(index - 1)
-  if (!store.onSearchSwitchToHymnScene) {
-    return
-  }
-  if (!store.onSearchHymnScene) {
-    return
-  }
-  await setCurrentScene(store.onSearchHymnScene)
 })
 
 async function search(number: number | string) {
@@ -132,7 +134,7 @@ async function search(number: number | string) {
   player.currentTime.value = 0
   player.load()
   if (connected.value) {
-    goTitle()
+    await goTitle()
   }
   if (store.autoplayMusic) {
     await togglePlayback()
@@ -164,13 +166,6 @@ function handleMusicTimestamp() {
 async function goTitle() {
   hymnIndex.value = 0
   await showTitle()
-  if (!store.onSearchSwitchToHymnScene) {
-    return
-  }
-  if (!store.onSearchHymnScene) {
-    return
-  }
-  await setCurrentScene(store.onSearchHymnScene)
 }
 
 async function toHomeScene(fadeoutMusic = false) {
@@ -186,12 +181,8 @@ async function toHomeScene(fadeoutMusic = false) {
 }
 
 async function showTitle() {
-  await setSourceVisibility('himno_numero', true)
-  await setSourceVisibility('himno_titulo', true)
-  await setSourceVisibility('verso_numero', false)
-  await setSourceVisibility('verso_contenido', false)
-  await setSourceText('himno_numero', hymnData.value?.number.toString())
-  await setSourceText('himno_titulo', hymnData.value?.title)
+  if (!hymnData.value) return
+  await updateObs(true, String(hymnData.value.number), hymnData.value.title)
 }
 
 async function showVerse(index: number) {
@@ -202,12 +193,7 @@ async function showVerse(index: number) {
   const verse = hymnData.value?.verses.find((v) => v.id === sequence.verseId)
   const content = verse?.contents.find((c) => c.id === sequence.verseContentId)
   const verseNumber = verse?.number === 0 ? 'Coro' : String(verse?.number)
-  await setSourceVisibility('himno_numero', false)
-  await setSourceVisibility('himno_titulo', false)
-  await setSourceVisibility('verso_numero', true)
-  await setSourceVisibility('verso_contenido', true)
-  await setSourceText('verso_numero', verseNumber)
-  await setSourceText('verso_contenido', content?.content)
+  await updateObs(false, verseNumber, content?.content ?? '')
 }
 </script>
 
@@ -273,6 +259,7 @@ async function showVerse(index: number) {
         <BaseButton class="stop-button" :disabled="!hymnData" title="Detener" @click="toHomeScene(true)"><StopIcon /></BaseButton>
       </div>
       <p v-if="audioError" class="audio-error" role="alert">{{ audioError }}</p>
+      <p v-if="obsError" class="audio-error" role="alert">{{ obsError }}</p>
       <audio ref="playerElement" preload="metadata" @loadedmetadata="updateDuration" @durationchange="updateDuration" @volumechange="syncVolume" @error="audioError = hymnData ? 'Audio no disponible. Intenta reproducir de nuevo.' : ''" @play="playing = true" @pause="playing = false" @emptied="playing = false; duration = 0" @ended="playing = false">
         <source :src="hymnData && fileUrl()" type="audio/mpeg">
       </audio>

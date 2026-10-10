@@ -48,6 +48,22 @@ Si bien la GUI requiere que tengas la escena y fuentes mencionadas, puedes agreg
 
 Finalmente, en la GUI debes conectarla con OBS Studio usando el botón **Conectar**.
 
+### Modo normal y Modo Estudio
+
+Al cargar un himno se muestran su número y título; al avanzar se ocultan y se
+muestra la estrofa o el coro. Selecciona en **Escena de himno** la escena que
+contiene las cuatro fuentes.
+
+En Modo Estudio, si esa escena ya está en **Programa**, la aplicación actualiza
+también la salida al cambiar entre título y versos, sin pulsar **Transición**.
+Respeta la transición configurada en OBS y conserva una escena distinta que
+estuviera preparada en **Vista previa**. Los avances se procesan en orden,
+esperando a que termine la transición.
+
+Si otra escena está en Programa, preparar un himno no la reemplaza. La opción
+**Cambiar a escena de himno** autoriza ese cambio automáticamente, tanto en
+modo normal como en Modo Estudio.
+
 ## Configuración avanzada
 
 La GUI tiene una configuración avanzada que puedes acceder desde el botón tuerca en la parte superior derecha de la GUI. En la configuración avanzada puedes establecer:
