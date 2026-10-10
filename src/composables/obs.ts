@@ -1,8 +1,15 @@
-import obsWebSocket, { OBSWebSocketError } from 'obs-websocket-js'
+import obsWebSocket, { OBSWebSocketError, EventSubscription } from 'obs-websocket-js'
 import { type Ref, ref } from 'vue'
 import { defaultValues, sceneStatus, store } from '../store.ts'
 
+import { receiveObsTheme, clearObsTheme } from '../theme'
+
 const obs = new obsWebSocket()
+obs.on('CustomEvent', receiveObsTheme)
+obs.on('ConnectionClosed', () => {
+  connected.value = false
+  clearObsTheme()
+})
 
 const connected: Ref<boolean> = ref(false)
 
@@ -10,7 +17,9 @@ export function useObs() {
   async function connect() {
     const url = `ws://${store.obsWebsocketUrl || defaultValues.obsWebsocketUrl}`
     try {
-      await obs.connect(url)
+      await obs.connect(url, undefined, {
+        eventSubscriptions: EventSubscription.All | EventSubscription.Vendors,
+      })
       await getScenes()
       if (
         store.sceneList.find((s) => s.sceneName === store.onSearchHymnScene)

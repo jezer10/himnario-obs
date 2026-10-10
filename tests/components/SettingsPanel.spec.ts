@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { VueWrapper, mount } from '@vue/test-utils'
-import SettingsPanel from '../SettingsPanel.vue'
+import SettingsPanel from '../../src/components/SettingsPanel.vue'
 
 describe("AdminPanel component", () => {
   let wrapper: VueWrapper

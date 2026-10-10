@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
+import { themeMode, obsThemeStatus } from '../theme'
 import { useObs } from '../composables/obs'
 import { defaultValues, store } from '../store'
 import BasicDialog from './BasicDialog.vue'
@@ -11,31 +12,6 @@ import BaseButton from './commons/BaseButton.vue'
 const { reconnect } = useObs()
 
 const dialog = ref<InstanceType<typeof BasicDialog> | null>(null)
-const darkMode = ref<'light' | 'dark'>(
-  (() => {
-    if (
-      localStorage.theme === 'dark' ||
-      (!('theme' in localStorage) &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches)
-    ) {
-      document.documentElement.classList.add('dark')
-      return 'dark'
-    }
-    document.documentElement.classList.remove('dark')
-    return 'light'
-  })(),
-)
-
-watch(darkMode, (value) => {
-  localStorage.theme = value
-  if (value === 'light') {
-    document.documentElement.classList.remove('dark')
-  }
-  if (value === 'dark') {
-    document.documentElement.classList.add('dark')
-  }
-})
-
 async function closeDialog() {
   localStorage.setItem('onlyInstrumental', `${store.onlyInstrumental}`)
   localStorage.setItem('autoplayMusic', `${store.autoplayMusic}`)
@@ -121,10 +97,16 @@ async function closeDialog() {
         <h3 class="font-bold">Personalización:</h3>
         <div class="flex flex-col">
           <label for="tm">Tema</label>
-          <InputSelect v-model="darkMode" id="tm">
+          <InputSelect v-model="themeMode" id="tm">
+            <option value="obs">Seguir tema de OBS</option>
             <option value="light">claro</option>
             <option value="dark">oscuro</option>
           </InputSelect>
+          <p v-if="themeMode === 'obs'" class="obs-muted mt-1 text-xs" role="status">{{ obsThemeStatus }}</p>
+          <p v-if="themeMode === 'obs'" class="mt-1 text-xs">
+            Carga el <a href="./obs/himnario-theme.lua" download class="underline">script de tema</a>
+            en OBS: Herramientas → Scripts → +. Luego conecta el panel.
+          </p>
         </div>
       </div>
     </div>

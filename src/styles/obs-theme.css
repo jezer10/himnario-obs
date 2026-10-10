@@ -1,0 +1,98 @@
+/* Web adaptation of OBS Yami / Light palette and control proportions.
+ * Reference: https://obsproject.com/kb/themes-guide
+ * Values checked against the installed Yami.obt and Yami_Light.ovt.
+ * The optional Lua bridge overrides these tokens with the selected OBS palette.
+ */
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 16px;
+  --obs-base: #e5e5e5;
+  --obs-control: #f5f5f5;
+  --obs-input: #f5f5f5;
+  --obs-hover: #fefefe;
+  --obs-pressed: #d3d3d3;
+  --obs-border: #8c8c8c;
+  --obs-text: #0a0a0a;
+  --obs-muted: #646464;
+  --obs-focus: #284cb8;
+  --obs-selection: #8cb5ff;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --obs-base: #272a33;
+  --obs-control: #3c404d;
+  --obs-input: #3c404d;
+  --obs-hover: #464b59;
+  --obs-pressed: #1d1f26;
+  --obs-border: #5b6273;
+  --obs-text: #ffffff;
+  --obs-muted: #969696;
+  --obs-focus: #718cdc;
+  --obs-selection: #284cb8;
+}
+
+body {
+  margin: 0;
+  font-size: 13px;
+  background: var(--obs-base);
+  color: var(--obs-text);
+}
+
+.obs-button, .obs-input, .obs-list-item {
+  font: inherit;
+  color: inherit;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: var(--obs-control);
+}
+
+.obs-button, .obs-input {
+  min-height: 28px;
+  padding: 4px 8px;
+}
+
+.obs-button { flex-shrink: 0; }
+.obs-input { min-width: 0; border-color: var(--obs-border); background: var(--obs-input); }
+.obs-button:hover, .obs-input:hover {
+  background: var(--obs-hover);
+  border-color: var(--obs-border);
+}
+.obs-button:active { background: var(--obs-pressed); }
+.obs-button:disabled {
+  color: var(--obs-muted);
+  background: var(--obs-base);
+  pointer-events: none;
+}
+
+:where(button, input, select, a):focus-visible {
+  outline: 2px solid var(--obs-focus);
+  outline-offset: 1px;
+}
+input[type="checkbox"] { accent-color: var(--obs-focus); }
+.obs-muted { color: var(--obs-muted); }
+.obs-list-item { border-radius: 2px; }
+.obs-list-item:hover, .obs-list-item:focus-visible {
+  background: var(--obs-selection);
+}
+
+.obs-dialog {
+  width: calc(100% - 16px);
+  max-width: 360px;
+  max-height: calc(100dvh - 16px);
+  border: 1px solid var(--obs-border);
+  border-radius: 4px;
+  background: var(--obs-base);
+  color: var(--obs-text);
+  font-size: 13px;
+  scrollbar-color: var(--obs-border) var(--obs-base);
+  scrollbar-width: thin;
+}
+.obs-dialog::backdrop { background: rgb(0 0 0 / 45%); }
+.obs-dialog-header {
+  background: var(--obs-base);
+  border-bottom: 1px solid var(--obs-border);
+}
+.obs-dialog-header .obs-input { flex: 1; width: 0; }
+audio::-webkit-media-controls-panel { background: var(--obs-control); }
