@@ -3,29 +3,21 @@ import AboutApp from './AboutApp.vue'
 import { ref } from 'vue'
 import { themeMode, obsThemeStatus } from '../theme'
 import { useObs } from '../composables/obs'
-import { defaultValues, store } from '../store'
+import { defaultValues, useSettingsStore, useObsStore } from '../store'
 import BasicDialog from './BasicDialog.vue'
 import GearIcon from './icons/GearIcon.vue'
 import InputSelect from './commons/InputSelect.vue'
 import InputText from './commons/InputText.vue'
 import BaseButton from './commons/BaseButton.vue'
 
+const store = useSettingsStore()
+const obsStore = useObsStore()
+
 const { reconnect } = useObs()
 
 const dialog = ref<InstanceType<typeof BasicDialog> | null>(null)
 async function closeDialog() {
-  localStorage.setItem('onlyInstrumental', `${store.onlyInstrumental}`)
-  localStorage.setItem('autoplayMusic', `${store.autoplayMusic}`)
-  localStorage.setItem('autodriveVerses', `${store.autodriveVerses}`)
-  localStorage.setItem(
-    'onSearchSwitchToHymnScene',
-    `${store.onSearchSwitchToHymnScene}`,
-  )
-  localStorage.setItem('onSearchHymnScene', `${store.onSearchHymnScene}`)
-  localStorage.setItem('onMusicEndSwitchToScene', store.onMusicEndSwitchToScene)
-  localStorage.setItem('obsWebsocketUrl', store.obsWebsocketUrl)
-  localStorage.setItem('musicHostUrl', store.musicHostUrl)
-  localStorage.setItem('hymnalApiUrl', store.hymnalApiUrl)
+  store.$persist()
   await reconnect()
   dialog.value?.close()
 }
@@ -64,7 +56,7 @@ async function closeDialog() {
           <InputSelect v-model="store.onSearchHymnScene" id="hs">
             <option value="">ninguno</option>
             <option class="hidden" :value="store.onSearchHymnScene">{{ store.onSearchHymnScene }}</option>
-            <option v-for="(scene, index) in store.sceneList" :key="index" :value="scene.sceneName">{{ scene.sceneName }}</option>
+            <option v-for="(scene, index) in obsStore.sceneList" :key="index" :value="scene.sceneName">{{ scene.sceneName }}</option>
           </InputSelect>
         </div>
       </div>
@@ -75,7 +67,7 @@ async function closeDialog() {
           <InputSelect v-model="store.onMusicEndSwitchToScene" id="sc">
             <option value="">ninguno</option>
             <option class="hidden" :value="store.onMusicEndSwitchToScene">{{ store.onMusicEndSwitchToScene }}</option>
-            <option v-for="(scene, index) in store.sceneList" :key="index" :value="scene.sceneName">{{ scene.sceneName }}</option>
+            <option v-for="(scene, index) in obsStore.sceneList" :key="index" :value="scene.sceneName">{{ scene.sceneName }}</option>
           </InputSelect>
         </div>  
       </div>

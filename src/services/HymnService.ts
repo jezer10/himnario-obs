@@ -1,22 +1,24 @@
 import type { Hymn, HymnSequence } from '../models/hymn.ts'
-import { defaultValues, store } from '../store.ts'
+import { defaultValues } from '../store.ts'
 import Fetch from './api.ts'
 
 const sHymn = {
-  async all(): Promise<Hymn[]> {
-    const url = `${store.hymnalApiUrl || defaultValues.hymnalApiUrl}/hymn`
+  async all(host = defaultValues.hymnalApiUrl): Promise<Hymn[]> {
+    const url = `${host}/hymn`
     const response = await Fetch(url)
+    if (!response.ok) throw new Error('No se pudieron cargar los himnos')
     return response.json()
   },
-  async byNumber(_number: number): Promise<HymnSequence> {
+  async byNumber(_number: number, host = defaultValues.hymnalApiUrl): Promise<HymnSequence> {
     const url = `${
-      store.hymnalApiUrl || defaultValues.hymnalApiUrl
+      host
     }/hymn/${_number}`
     const response = await Fetch(url)
     if (response.status === 404) {
-      return Promise.reject('Hymn not found')
+      throw new Error('Himno no encontrado')
     }
-    return await response.json()
+    if (!response.ok) throw new Error('No se pudieron cargar los himnos')
+    return response.json()
   },
 }
 

@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import packageJson from '../../package.json'
-import { store } from '../store.ts'
+import { useSettingsStore } from '../store.ts'
 import BasicDialog from './BasicDialog.vue'
 import AboutIcon from './icons/AboutIcon.vue'
 import BaseButton from './commons/BaseButton.vue'
+
+const store = useSettingsStore()
 
 const dialog = ref<InstanceType<typeof BasicDialog> | null>(null)
 
 onMounted(() => {
   if (store.isFirstTimeInVersion) {
-    store.isFirstTimeInVersion = false
-    localStorage.setItem('version', packageJson.version)
+    store.markVersionSeen()
     dialog.value?.open()
   }
 })

@@ -1,11 +1,15 @@
-import { ref, watch } from 'vue'
+import { ref, watch, type WatchStopHandle } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useSettingsStore, type ThemeMode } from '../store'
 import palettes from './obs-palettes.json'
 
-export type ThemeMode = 'obs' | 'light' | 'dark'
-const saved = localStorage.getItem('theme')
-export const themeMode = ref<ThemeMode>(
-  saved === 'light' || saved === 'dark' ? saved : 'obs',
-)
+export let themeMode = ref<ThemeMode>('obs')
+let stopThemeWatch: WatchStopHandle | undefined
+export function initializeTheme() {
+  stopThemeWatch?.()
+  themeMode = storeToRefs(useSettingsStore()).theme
+  stopThemeWatch = watch(themeMode, applyTheme, { flush: 'sync', immediate: true })
+}
 export const obsThemeStatus = ref('Esperando conexión y script de OBS')
 let snapshot: { dark: boolean; id: string } | undefined
 let expiry: ReturnType<typeof setTimeout> | undefined
@@ -69,13 +73,3 @@ export function receiveObsTheme(data: unknown) {
   expiry = setTimeout(clearObsTheme, 12000)
   applyTheme()
 }
-
-watch(
-  themeMode,
-  (value) => {
-    localStorage.setItem('theme', value)
-    applyTheme()
-  },
-  { flush: 'sync' },
-)
-applyTheme()

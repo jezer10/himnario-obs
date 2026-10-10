@@ -1,6 +1,6 @@
 import obsWebSocket, { OBSWebSocketError, EventSubscription } from 'obs-websocket-js'
 import { type Ref, ref } from 'vue'
-import { defaultValues, sceneStatus, store } from '../store.ts'
+import { defaultValues, useObsStore, useSettingsStore } from '../store.ts'
 
 import { receiveObsTheme, clearObsTheme } from '../theme'
 
@@ -14,6 +14,9 @@ obs.on('ConnectionClosed', () => {
 const connected: Ref<boolean> = ref(false)
 
 export function useObs() {
+  const store = useSettingsStore()
+  const obsStore = useObsStore()
+  const sceneStatus = obsStore.sceneStatus
   async function connect(quiet = false) {
     if (connected.value) return
     const url = `ws://${store.obsWebsocketUrl || defaultValues.obsWebsocketUrl}`
@@ -23,11 +26,11 @@ export function useObs() {
       })
       await getScenes()
       if (
-        store.sceneList.find((s) => s.sceneName === store.onSearchHymnScene)
+        obsStore.sceneList.find((s) => s.sceneName === store.onSearchHymnScene)
       ) {
         sceneStatus.scene = true
         await getSceneItems(store.onSearchHymnScene)
-        const items = store.sourceList.map((s) => s.sourceName)
+        const items = obsStore.sourceList.map((s) => s.sourceName)
         sceneStatus.source.himnoNumero = items.includes('himno_numero')
         sceneStatus.source.himnoTitulo = items.includes('himno_titulo')
         sceneStatus.source.versoNumero = items.includes('verso_numero')
@@ -62,7 +65,7 @@ export function useObs() {
 
   async function getScenes() {
     const { scenes } = await obs.call('GetSceneList')
-    store.sceneList = scenes
+    obsStore.sceneList = scenes
   }
 
   async function getSceneItems(sceneName: string) {
@@ -85,7 +88,7 @@ export function useObs() {
     sceneItems = sceneItems.filter((item) => !item.isGroup)
     sceneItems.push(...groupSceneItems)
     // Set source list
-    store.sourceList = sceneItems
+    obsStore.sourceList = sceneItems
   }
 
   async function setCurrentScene(sceneName: string) {
@@ -93,7 +96,7 @@ export function useObs() {
   }
 
   async function setSourceVisibility(sourceName: string, visible: boolean) {
-    const sceneItem = store.sourceList.find((s) => s.sourceName === sourceName)
+    const sceneItem = obsStore.sourceList.find((s) => s.sourceName === sourceName)
     if (!sceneItem) return
     await obs.call('SetSceneItemEnabled', {
       sceneName: sceneItem.groupName ?? store.onSearchHymnScene,

@@ -43,6 +43,7 @@ describe("AdminPanel component", () => {
 
     await numberInput.setValue('25')
     await wrapper.get('form').trigger('submit')
+    await flushPromises()
 
     const hymnTitle = wrapper.get('[data-test="hymn-title"]')
 
