@@ -16,7 +16,7 @@ vi.spyOn(sHymn, 'byNumber').mockResolvedValue({
   sequence: []
 })
 vi.spyOn(OBSWebSocket.prototype, 'connect').mockResolvedValue(undefined as any)
-vi.spyOn(OBSWebSocket.prototype, 'call').mockResolvedValue({ scenes: [] } as any)
+vi.spyOn(OBSWebSocket.prototype, 'call').mockResolvedValue({ scenes: [], sceneItems: [], studioModeEnabled: false } as any)
 
 describe("AdminPanel component", () => {
   let wrapper: VueWrapper
