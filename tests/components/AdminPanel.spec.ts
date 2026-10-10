@@ -25,16 +25,10 @@ describe("AdminPanel component", () => {
     wrapper = mount(AdminPanel)
   })
 
-  it('connects automatically and permits manual disconnection', async () => {
+  it('connects automatically and shows status beside the socket URL', async () => {
     await flushPromises()
-    const button = wrapper.get('[aria-label="Conexión con OBS"]')
-    expect(button.attributes('aria-checked')).toBe('true')
-    await button.trigger('click')
-    await flushPromises()
-    expect(button.attributes('aria-checked')).toBe('false')
-    await button.trigger('click')
-    await flushPromises()
-    expect(button.attributes('aria-checked')).toBe('true')
+    expect(wrapper.get('label[for="ow"]').element.parentElement?.textContent).toContain('Conectado')
+    expect(wrapper.find('[aria-label="Conexión con OBS"]').exists()).toBe(false)
   })
 
   it('searches a hymn', async () => {
@@ -49,11 +43,11 @@ describe("AdminPanel component", () => {
 
     expect(hymnTitle.text()).toContain('Siento la presencia del Señor')
 
-    expect(wrapper.get('.music-caption').text()).toContain('En pausa')
+    expect(wrapper.get('[data-test="music-caption"]').text()).toContain('En pausa')
     await wrapper.get('audio').trigger('play')
-    expect(wrapper.get('.music-caption').text()).toContain('Reproduciendo')
+    expect(wrapper.get('[data-test="music-caption"]').text()).toContain('Reproduciendo')
     await wrapper.get('audio').trigger('pause')
-    expect(wrapper.get('.music-caption').text()).toContain('En pausa')
+    expect(wrapper.get('[data-test="music-caption"]').text()).toContain('En pausa')
 
     const sourceAudio = wrapper.get('audio>source')
 
@@ -88,7 +82,7 @@ describe("AdminPanel component", () => {
     await wrapper.get('[title="Reproducir música"]').trigger('click')
     await flushPromises()
     expect(wrapper.get('[role="alert"]').text()).toContain('No se pudo reproducir')
-    expect(wrapper.get('.music-caption').text()).toContain('En pausa')
+    expect(wrapper.get('[data-test="music-caption"]').text()).toContain('En pausa')
   })
 
   it.skip('enable/disable autoplay', async () => {

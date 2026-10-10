@@ -9,9 +9,28 @@ obs.on('CustomEvent', receiveObsTheme)
 obs.on('ConnectionClosed', () => {
   connected.value = false
   clearObsTheme()
+  scheduleRetry()
 })
 
 const connected: Ref<boolean> = ref(false)
+const connecting = ref(false)
+let retryTimer: ReturnType<typeof setTimeout> | undefined
+let retryConnect: (() => Promise<void>) | undefined
+let pendingConnection: Promise<void> | undefined
+let restarting = false
+
+function scheduleRetry() {
+  if (retryTimer || !retryConnect || restarting) return
+  retryTimer = setTimeout(() => {
+    retryTimer = undefined
+    void retryConnect?.()
+  }, 3000)
+}
+
+function clearRetry() {
+  clearTimeout(retryTimer)
+  retryTimer = undefined
+}
 
 export function isTextInput(kind: unknown): boolean {
   return typeof kind === 'string' && /^text_(gdiplus|ft2_source)(?:_v\d+)?$/.test(kind)
@@ -55,8 +74,21 @@ export function useObs() {
     displayQueue = update.catch(() => {})
     return update
   }
-  async function connect(quiet = false) {
+  async function connect() {
+    retryConnect = connect
     if (connected.value) return
+    if (pendingConnection) return pendingConnection
+    clearRetry()
+    pendingConnection = openConnection()
+    try {
+      await pendingConnection
+    } finally {
+      pendingConnection = undefined
+    }
+  }
+
+  async function openConnection() {
+    connecting.value = true
     const url = `ws://${store.obsWebsocketUrl || defaultValues.obsWebsocketUrl}`
     try {
       await obs.connect(url, undefined, {
@@ -79,20 +111,31 @@ export function useObs() {
       }
       connected.value = true
     } catch {
-      if (!quiet) alert('Conexión fallida')
+      connected.value = false
+      await obs.disconnect().catch(() => {})
+      scheduleRetry()
+    } finally {
+      connecting.value = false
     }
   }
 
   async function disconnect() {
+    retryConnect = undefined
+    clearRetry()
+    await pendingConnection
     await obs.disconnect()
     connected.value = false
+    clearObsTheme()
   }
 
   async function reconnect() {
-    if (!connected.value) {
-      return
+    if (restarting) return
+    restarting = true
+    try {
+      await disconnect()
+    } finally {
+      restarting = false
     }
-    await disconnect()
     await connect()
   }
 
@@ -228,6 +271,7 @@ export function useObs() {
     disconnect,
     reconnect,
     connected,
+    connecting,
     displayHymn,
     getSceneItems,
     setCurrentScene,

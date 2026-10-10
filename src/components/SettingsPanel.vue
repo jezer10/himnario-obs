@@ -13,12 +13,12 @@ import BaseButton from './commons/BaseButton.vue'
 const store = useSettingsStore()
 const obsStore = useObsStore()
 
-const { reconnect } = useObs()
+const { reconnect, connected, connecting } = useObs()
 
 const dialog = ref<InstanceType<typeof BasicDialog> | null>(null)
 async function closeDialog() {
   store.$persist()
-  await reconnect()
+  void reconnect()
   dialog.value?.close()
 }
 </script>
@@ -37,19 +37,19 @@ async function closeDialog() {
         <h3 class="font-bold">Al buscar:</h3>
         <div class="flex items-center gap-1">
           <label for="oi">Solo instrumental</label>
-          <input v-model="store.onlyInstrumental" type="checkbox" id="oi" class="ml-auto">
+          <input v-model="store.onlyInstrumental" type="checkbox" id="oi" class="ml-auto accent-obs-focus focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
         </div>
         <div class="flex items-center gap-1">
           <label for="am">Autoreproducir música</label>
-          <input v-model="store.autoplayMusic" type="checkbox" id="am" class="ml-auto">
+          <input v-model="store.autoplayMusic" type="checkbox" id="am" class="ml-auto accent-obs-focus focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
         </div>
         <div class="flex items-center gap-1">
           <label for="av">Autoconducir versos</label>
-          <input v-model="store.autodriveVerses" type="checkbox" id="av" class="ml-auto">
+          <input v-model="store.autodriveVerses" type="checkbox" id="av" class="ml-auto accent-obs-focus focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
         </div>
         <div class="flex items-center gap-1">
           <label for="sch">Cambiar a escena de himno</label>
-          <input v-model="store.onSearchSwitchToHymnScene" type="checkbox" id="sch" class="ml-auto">
+          <input v-model="store.onSearchSwitchToHymnScene" type="checkbox" id="sch" class="ml-auto accent-obs-focus focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
         </div>
         <div class="flex flex-col">
           <label for="hs">Escena de himno</label>
@@ -74,7 +74,13 @@ async function closeDialog() {
       <div class="mb-2">
         <h3 class="font-bold">Red:</h3>
         <div class="flex flex-col">
-          <label for="ow">URL de OBS Websocket</label>
+          <div class="flex items-center justify-between gap-2">
+            <label for="ow">URL de OBS Websocket</label>
+            <span class="flex items-center gap-1 text-xs" role="status">
+              <span aria-hidden="true" class="size-[7px] shrink-0 rounded-full" :class="connected ? 'bg-green-600' : 'bg-red-600'"></span>
+              {{ connected ? 'Conectado' : connecting ? 'Conectando…' : 'Reintentando…' }}
+            </span>
+          </div>
           <InputText v-model="store.obsWebsocketUrl" id="ow" :placeholder="defaultValues.obsWebsocketUrl" />
         </div>
         <div class="flex flex-col">
@@ -95,10 +101,10 @@ async function closeDialog() {
             <option value="light">claro</option>
             <option value="dark">oscuro</option>
           </InputSelect>
-          <p v-if="themeMode === 'obs'" class="obs-muted mt-1 text-xs" role="status">{{ obsThemeStatus }}</p>
+          <p v-if="themeMode === 'obs'" class="text-obs-muted mt-1 text-xs" role="status">{{ obsThemeStatus }}</p>
           <p v-if="themeMode === 'obs'" class="mt-1 text-xs">
-            Carga el <a href="./obs/himnario-theme.lua" download class="underline">script de tema</a>
-            en OBS: Herramientas → Scripts → +. Luego conecta el panel.
+            Carga el <a href="./obs/himnario-theme.lua" download class="underline focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">script de tema</a>
+            en OBS: Herramientas → Scripts → +. El panel se conecta automáticamente.
           </p>
         </div>
       </div>

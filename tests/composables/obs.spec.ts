@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import OBSWebSocket from 'obs-websocket-js'
 import { useObs } from '../../src/composables/obs'
 import { useSettingsStore } from '../../src/store'
@@ -9,7 +9,13 @@ let program = 'Himnario'
 let preview = 'Himnario'
 let api: ReturnType<typeof useObs>
 const call = vi.spyOn(OBSWebSocket.prototype, 'call')
-vi.spyOn(OBSWebSocket.prototype, 'connect').mockResolvedValue(undefined as never)
+const connectSocket = vi.spyOn(OBSWebSocket.prototype, 'connect').mockResolvedValue(undefined as never)
+vi.spyOn(OBSWebSocket.prototype, 'disconnect').mockResolvedValue()
+
+afterEach(async () => {
+  await api.disconnect()
+  vi.useRealTimers()
+})
 
 beforeEach(async () => {
   studio = false
@@ -32,6 +38,39 @@ beforeEach(async () => {
 })
 
 describe('Hymn output in normal and studio modes', () => {
+  it('retries a failed connection automatically', async () => {
+    vi.useFakeTimers()
+    await api.disconnect()
+    connectSocket.mockRejectedValueOnce(new Error('OBS unavailable'))
+    await api.connect()
+    expect(api.connected.value).toBe(false)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(api.connected.value).toBe(true)
+  })
+
+  it('reconnects after the socket closes', async () => {
+    vi.useFakeTimers()
+    const socket = connectSocket.mock.contexts.at(-1) as OBSWebSocket
+    socket.emit('ConnectionClosed', { code: 1006, message: 'Connection lost' })
+    expect(api.connected.value).toBe(false)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(api.connected.value).toBe(true)
+  })
+
+  it('applies a new address while disconnected without waiting for the retry', async () => {
+    vi.useFakeTimers()
+    await api.disconnect()
+    connectSocket.mockRejectedValueOnce(new Error('OBS unavailable'))
+    await api.connect()
+    useSettingsStore().obsWebsocketUrl = 'localhost:4456'
+    await api.reconnect()
+    expect(connectSocket).toHaveBeenLastCalledWith('ws://localhost:4456', undefined, expect.anything())
+    expect(api.connected.value).toBe(true)
+    const attempts = connectSocket.mock.calls.length
+    await vi.advanceTimersByTimeAsync(6000)
+    expect(connectSocket).toHaveBeenCalledTimes(attempts)
+  })
+
   it('updates title and verse visibility in normal mode without a transition', async () => {
     await api.displayHymn(true, '1', 'Título')
     await api.displayHymn(false, '1', 'Estrofa')
