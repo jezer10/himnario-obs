@@ -8,6 +8,7 @@ import BasicDialog from './BasicDialog.vue'
 import GearIcon from './icons/GearIcon.vue'
 import InputSelect from './commons/InputSelect.vue'
 import InputText from './commons/InputText.vue'
+import InputSwitch from './commons/InputSwitch.vue'
 import BaseButton from './commons/BaseButton.vue'
 
 const store = useSettingsStore()
@@ -25,32 +26,20 @@ async function closeDialog() {
 
 <template>
   <BaseButton
-    class="w-7 h-7 ml-auto"
+    class="grid size-8 place-items-center p-1.5! ml-auto [&_svg]:size-[18px]"
     title="Configuración"
     @click="dialog?.open"
   >
     <GearIcon />
   </BaseButton>
-  <BasicDialog ref="dialog" title="Configuración" data-test="settings">
+  <BasicDialog ref="dialog" title="Configuración" compact-header data-test="settings">
     <div class="text-sm">
       <div class="mb-2">
         <h3 class="font-bold">Al buscar:</h3>
-        <div class="flex items-center gap-1">
-          <label for="oi">Solo instrumental</label>
-          <input v-model="store.onlyInstrumental" type="checkbox" id="oi" class="ml-auto accent-obs-focus focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
-        </div>
-        <div class="flex items-center gap-1">
-          <label for="am">Autoreproducir música</label>
-          <input v-model="store.autoplayMusic" type="checkbox" id="am" class="ml-auto accent-obs-focus focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
-        </div>
-        <div class="flex items-center gap-1">
-          <label for="av">Autoconducir versos</label>
-          <input v-model="store.autodriveVerses" type="checkbox" id="av" class="ml-auto accent-obs-focus focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
-        </div>
-        <div class="flex items-center gap-1">
-          <label for="sch">Cambiar a escena de himno</label>
-          <input v-model="store.onSearchSwitchToHymnScene" type="checkbox" id="sch" class="ml-auto accent-obs-focus focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
-        </div>
+        <InputSwitch v-model="store.onlyInstrumental" id="oi">Solo instrumental</InputSwitch>
+        <InputSwitch v-model="store.autoplayMusic" id="am">Autoreproducir música</InputSwitch>
+        <InputSwitch v-model="store.autodriveVerses" id="av">Avance automático</InputSwitch>
+        <InputSwitch v-model="store.onSearchSwitchToHymnScene" id="sch">Cambiar a escena de himno</InputSwitch>
         <div class="flex flex-col">
           <label for="hs">Escena de himno</label>
           <InputSelect v-model="store.onSearchHymnScene" id="hs">
@@ -74,7 +63,7 @@ async function closeDialog() {
       <div class="mb-2">
         <h3 class="font-bold">Red:</h3>
         <div class="flex flex-col">
-          <div class="flex items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
             <label for="ow">URL de OBS Websocket</label>
             <span class="flex items-center gap-1 text-xs" role="status">
               <span aria-hidden="true" class="size-[7px] shrink-0 rounded-full" :class="connected ? 'bg-green-600' : 'bg-red-600'"></span>

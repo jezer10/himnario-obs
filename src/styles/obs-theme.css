@@ -45,7 +45,7 @@
 }
 
 @custom-variant compact {
-  @media (pointer: coarse), (max-width: 360px) {
+  @media (max-width: 360px) {
     @slot;
   }
 }

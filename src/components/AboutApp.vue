@@ -20,7 +20,7 @@ onMounted(() => {
 
 <template>
   <BaseButton
-    class="w-7 h-7"
+    class="grid size-8 place-items-center p-1.5! [&_svg]:size-[18px]"
     title="Acerca de"
     @click="dialog?.open"
   >

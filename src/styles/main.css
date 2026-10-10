@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@import "./obs-theme.css";
+@import "./obs-controls.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Grow the reading area progressively, while keeping short OBS docks dense. */
+@media (min-width: 361px) and (min-height: 600px) {
+  .hymnal-panel { gap: 8px; padding: 12px; }
+  .hymnal-verse { font-size: clamp(16px, 2.4vw, 34px); line-height: 1.55; }
+  .hymnal-empty { font-size: 14px; }
+}
+
+@media (min-width: 800px) and (min-height: 600px) {
+  .hymnal-panel { gap: 12px; padding: 16px 24px 0; }
+}
+
+/* Use the same touch target for search, transport and dialog controls. */
+@media (pointer: coarse), (max-width: 480px) and (min-height: 500px) {
+  @layer base {
+    .hymnal-panel button,
+    .obs-button {
+      min-width: 44px !important;
+      min-height: 44px !important;
+    }
+  }
+  .hymnal-search { min-height: 44px; }
+  [role="option"] { min-height: 44px; align-items: center; }
+  input[type="range"] { min-height: 44px; }
+}
+
+@media (max-height: 400px) {
+  .hymnal-preview { min-height: 32px; }
+  #automatic-advance-hint { display: none; }
+}
+
+@media (pointer: coarse) and (min-width: 800px) and (min-height: 600px) {
+  .hymnal-panel > section[aria-label="Reproductor de música"] {
+    grid-template-rows: 44px 44px 14px;
+  }
+}

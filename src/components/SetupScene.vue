@@ -80,44 +80,44 @@ async function createSceneAndSources() {
 <template>
   <BasicDialog ref="dialog" title="" data-test="settings">
     <template v-slot:header>
-      <div class="flex items-center gap-2">
-        <div class="rounded-full w-2 h-2" :class="sceneStatus.scene? 'bg-green-600' : 'bg-red-600'"></div>
+      <div class="flex min-w-0 items-center gap-2 [overflow-wrap:anywhere]">
+        <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.scene? 'bg-green-600' : 'bg-red-600'"></div>
         {{ store.onSearchHymnScene }}
       </div>
     </template>
     <div class="space-y-1">
-      <div class="bg-[#F3F3F3] dark:bg-[#3C404B] w-full flex items-stretch rounded-sm divide-x divide-[#E5E5E5] dark:divide-[#2B2E38]">
+      <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="rounded-full w-2 h-2" :class="sceneStatus.source.himnoNumero? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoNumero? 'bg-green-600' : 'bg-red-600'"></div>
         </div>
-        <div class="px-2 py-1 grow flex">
+        <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           himno_numero
           <span class="ms-auto opacity-60">Texto</span>
         </div>
       </div>
-      <div class="bg-[#F3F3F3] dark:bg-[#3C404B] w-full flex items-stretch rounded-sm divide-x divide-[#E5E5E5] dark:divide-[#2B2E38]">
+      <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="rounded-full w-2 h-2" :class="sceneStatus.source.himnoTitulo? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoTitulo? 'bg-green-600' : 'bg-red-600'"></div>
         </div>
-        <div class="px-2 py-1 grow flex">
+        <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           himno_titulo
           <span class="ms-auto opacity-60">Texto</span>
         </div>
       </div>
-      <div class="bg-[#F3F3F3] dark:bg-[#3C404B] w-full flex items-stretch rounded-sm divide-x divide-[#E5E5E5] dark:divide-[#2B2E38]">
+      <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="rounded-full w-2 h-2" :class="sceneStatus.source.versoNumero? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoNumero? 'bg-green-600' : 'bg-red-600'"></div>
         </div>
-        <div class="px-2 py-1 grow flex">
+        <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           verso_numero
           <span class="ms-auto opacity-60">Texto</span>
         </div>
       </div>
-      <div class="bg-[#F3F3F3] dark:bg-[#3C404B] w-full flex items-stretch rounded-sm divide-x divide-[#E5E5E5] dark:divide-[#2B2E38]">
+      <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="rounded-full w-2 h-2" :class="sceneStatus.source.versoContenido? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoContenido? 'bg-green-600' : 'bg-red-600'"></div>
         </div>
-        <div class="px-2 py-1 grow flex">
+        <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           verso_contenido
           <span class="ms-auto opacity-60">Texto</span>
         </div>
