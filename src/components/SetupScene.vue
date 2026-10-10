@@ -2,9 +2,13 @@
 import type { OBSEventTypes } from 'obs-websocket-js'
 import { ref, watch } from 'vue'
 import { useObs } from '../composables/obs'
-import { sceneStatus, store } from '../store'
+import { useObsStore, useSettingsStore } from '../store'
 import BasicDialog from './BasicDialog.vue'
 import BaseButton from './commons/BaseButton.vue'
+
+const store = useSettingsStore()
+const obsStore = useObsStore()
+const sceneStatus = obsStore.sceneStatus
 
 const { on, connected, getSceneItems, createScene, createSource } = useObs()
 
@@ -50,7 +54,7 @@ async function checkSource({
     return
   }
   await getSceneItems(store.onSearchHymnScene)
-  const sceneItem = store.sourceList.find(
+  const sceneItem = obsStore.sourceList.find(
     (source) => source.sourceName === sourceName,
   )
   sceneStatus.source[source] = Boolean(

@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useHymn } from '../composables/hymn'
 import { useObs } from '../composables/obs'
 import { usePlayer } from '../composables/player'
-import { store } from '../store'
+import { useSettingsStore } from '../store'
 import SearchIcon from './icons/SearchIcon.vue'
 import AutodriveButton from './AutodriveButton.vue'
 import HymnSearcher from './HymnSearcher.vue'
@@ -14,6 +14,8 @@ import PreviousIcon from './icons/PreviousIcon.vue'
 import PlayIcon from './icons/PlayIcon.vue'
 import StopIcon from './icons/StopIcon.vue'
 import BaseButton from './commons/BaseButton.vue'
+
+const store = useSettingsStore()
 
 const {
   connect,
@@ -118,7 +120,12 @@ watch(hymnIndex, async (index) => {
 })
 
 async function search(number: number | string) {
-  await searchHymn(number)
+  try {
+    if (!await searchHymn(number)) return
+  } catch {
+    audioError.value = 'No se pudo cargar el himno. Intenta nuevamente.'
+    return
+  }
   await nextTick()
   audioError.value = ''
   duration.value = 0
@@ -231,6 +238,7 @@ async function showVerse(index: number) {
     </section>
 
     <section class="music-controls" aria-label="Reproductor de música">
+      <div class="hymn-number-tile" :aria-label="hymnData ? 'Himno ' + hymnData.number : 'Sin himno'">{{ hymnData ? String(hymnData.number).padStart(3, '0') : '—' }}</div>
       <div class="hymn-heading">
         <span class="obs-muted hymn-eyebrow">{{ hymnData ? 'Himno ' + String(hymnData.number).padStart(3, '0') : 'Himnario' }}</span>
         <h1 data-test="hymn-title" :title="hymnData?.title">{{ hymnData?.title || 'Elige un himno' }}</h1>

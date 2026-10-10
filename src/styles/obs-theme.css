@@ -223,3 +223,39 @@ audio::-webkit-media-controls-panel { background: var(--obs-control); }
   .search-area { display: none; }
   .search-area.is-open { display: block; position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 25; background: var(--obs-base); }
 }
+
+/* On spacious views the same player becomes a larger bottom transport. */
+@media (min-width: 800px) and (min-height: 600px) {
+  .obs-panel { max-width: none; padding: 16px 24px 0; gap: 12px; }
+  .player-header { width: min(100%, 760px); margin-inline: auto; }
+  .hymn-preview { width: min(100%, 1000px); margin-inline: auto; padding: 16px; }
+  .verse-content { font-size: clamp(20px, 2.4vw, 34px); line-height: 1.55; }
+  .verse-position { font-size: 13px; margin-top: 10px; }
+  .music-controls { margin-inline: -24px; padding: 14px max(24px, calc((100vw - 1000px) / 2)) 18px; background: var(--obs-control); border-top: 1px solid var(--obs-border); }
+  .music-controls .hymn-heading h1 { font-size: 18px; }
+  .audio-progress { gap: 12px; }
+  .audio-times { font-size: 13px; padding-right: 56px; }
+  .music-controls input[type="range"] { height: 30px; }
+  .central-transport { gap: 16px; }
+  .central-transport .obs-button, .music-controls .audio-mute, .stop-button { width: 44px; min-height: 44px; }
+  .central-transport .audio-play { width: 52px; min-height: 52px; background: var(--obs-input); border: 1px solid var(--obs-border); border-radius: 50%; }
+  .audio-transport svg, .audio-progress svg { width: 22px; height: 22px; }
+}
+.hymn-number-tile { display: none; }
+@media (min-width: 800px) and (min-height: 600px) {
+  .music-controls { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto minmax(0, 1fr); grid-template-rows: 44px 22px 14px; column-gap: 12px; row-gap: 2px; align-items: center; padding: 10px 24px 8px; }
+  .hymn-number-tile { display: grid; place-items: center; grid-column: 1; grid-row: 1; width: 44px; height: 44px; border-radius: 6px; border: 1px solid var(--obs-border); background: var(--obs-base); font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .music-controls .hymn-heading { grid-column: 2; grid-row: 1; text-align: left; margin: 0; min-width: 0; }
+  .music-controls .hymn-heading h1 { font-size: 14px; }
+  .audio-transport { display: contents; }
+  .transport-spacer { display: none; }
+  .central-transport { grid-column: 3; grid-row: 1; gap: 10px; }
+  .central-transport .obs-button { width: 36px; min-height: 36px; }
+  .central-transport .audio-play { width: 40px; min-height: 40px; background: var(--obs-base); border-radius: 50%; }
+  .stop-button { grid-column: 4; grid-row: 1; }
+  .audio-progress { grid-column: 1 / -1; grid-row: 2; gap: 10px; }
+  .music-controls input[type="range"] { height: 22px; }
+  .audio-progress .audio-mute { width: 34px; min-height: 24px; height: 24px; padding-block: 2px; }
+  .audio-times { grid-column: 1 / -1; grid-row: 3; margin: 0; padding-right: 44px; font-size: 10px; }
+  .audio-error { grid-column: 1 / -1; }
+}
