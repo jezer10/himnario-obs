@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AboutApp from './AboutApp.vue'
 import { ref } from 'vue'
 import { themeMode, obsThemeStatus } from '../theme'
 import { useObs } from '../composables/obs'
@@ -111,6 +112,7 @@ async function closeDialog() {
       </div>
     </div>
     <template v-slot:footer>
+      <AboutApp />
       <BaseButton
         class="ml-auto"
         title="Guardar y cerrar"

@@ -7,7 +7,7 @@ export const store = reactive({
   isFirstTimeInVersion: localStorage.getItem('version') !== packageJson.version,
   onlyInstrumental: localStorage.getItem('onlyInstrumental') === 'true',
   autoplayMusic: localStorage.getItem('autoplayMusic') === 'true',
-  autodriveVerses: localStorage.getItem('autodriveVerses') === 'true',
+  autodriveVerses: localStorage.getItem('autodriveVerses') !== 'false',
   onSearchSwitchToHymnScene:
     localStorage.getItem('onSearchSwitchToHymnScene') === 'true',
   onSearchHymnScene: localStorage.getItem('onSearchHymnScene') || 'Himnario',

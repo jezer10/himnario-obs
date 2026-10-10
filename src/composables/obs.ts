@@ -14,7 +14,8 @@ obs.on('ConnectionClosed', () => {
 const connected: Ref<boolean> = ref(false)
 
 export function useObs() {
-  async function connect() {
+  async function connect(quiet = false) {
+    if (connected.value) return
     const url = `ws://${store.obsWebsocketUrl || defaultValues.obsWebsocketUrl}`
     try {
       await obs.connect(url, undefined, {
@@ -42,7 +43,7 @@ export function useObs() {
       }
       connected.value = true
     } catch {
-      alert('Conexión fallida')
+      if (!quiet) alert('Conexión fallida')
     }
   }
 
@@ -93,6 +94,7 @@ export function useObs() {
 
   async function setSourceVisibility(sourceName: string, visible: boolean) {
     const sceneItem = store.sourceList.find((s) => s.sourceName === sourceName)
+    if (!sceneItem) return
     await obs.call('SetSceneItemEnabled', {
       sceneName: sceneItem.groupName ?? store.onSearchHymnScene,
       sceneItemId: sceneItem.sceneItemId,

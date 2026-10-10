@@ -25,36 +25,69 @@ describe("AdminPanel component", () => {
     wrapper = mount(AdminPanel)
   })
 
-  it('connects and disconnects', async () => {
-    const button = wrapper.get('[title="Conectar"]')
-
-    expect(button.text()).toContain('Desconectado')
-
+  it('connects automatically and permits manual disconnection', async () => {
+    await flushPromises()
+    const button = wrapper.get('[aria-label="Conexión con OBS"]')
+    expect(button.attributes('aria-checked')).toBe('true')
     await button.trigger('click')
     await flushPromises()
-
-    expect(button.text()).toContain('Conectado')
-
+    expect(button.attributes('aria-checked')).toBe('false')
     await button.trigger('click')
     await flushPromises()
-
-    expect(button.text()).toContain('Desconectado')
+    expect(button.attributes('aria-checked')).toBe('true')
   })
 
   it('searches a hymn', async () => {
-    const numberInput = wrapper.get('[title="Número del himno"]')
-    const searchButton = wrapper.get('[title="Buscar"]')
+    const numberInput = wrapper.get('[role="combobox"]')
+
 
     await numberInput.setValue('25')
-    await searchButton.trigger('click')
+    await wrapper.get('form').trigger('submit')
 
     const hymnTitle = wrapper.get('[data-test="hymn-title"]')
 
-    expect(hymnTitle.text()).toContain('Reproduciendo: Siento la presencia del Señor')
+    expect(hymnTitle.text()).toContain('Siento la presencia del Señor')
+
+    expect(wrapper.get('.music-caption').text()).toContain('En pausa')
+    await wrapper.get('audio').trigger('play')
+    expect(wrapper.get('.music-caption').text()).toContain('Reproduciendo')
+    await wrapper.get('audio').trigger('pause')
+    expect(wrapper.get('.music-caption').text()).toContain('En pausa')
 
     const sourceAudio = wrapper.get('audio>source')
 
     expect(sourceAudio.attributes('src')).toContain('025%20-%20Siento%20la%20presencia%20del%20Senor.mp3')
+  })
+
+  it('seeks, adjusts volume and toggles mute through custom controls', async () => {
+    const audio = wrapper.get('audio')
+    const element = audio.element as HTMLAudioElement
+    Object.defineProperty(element, 'duration', { configurable: true, value: 180 })
+    await audio.trigger('loadedmetadata')
+    const progress = wrapper.get('input[aria-label="Progreso del himno"]')
+    await progress.setValue('45')
+    expect(element.currentTime).toBe(45)
+    expect(progress.attributes('aria-valuetext')).toBe('0:45 de 3:00')
+    expect(wrapper.find('input[aria-label="Volumen"]').exists()).toBe(false)
+    await wrapper.get('[title="Volumen"]').trigger('click')
+    await wrapper.get('input[aria-label="Volumen"]').setValue('0.35')
+    expect(element.volume).toBe(0.35)
+    await wrapper.get('[title="Silenciar"]').trigger('click')
+    expect(element.muted).toBe(true)
+    await wrapper.get('[title="Activar sonido"]').trigger('click')
+    expect(element.muted).toBe(false)
+    expect(element.volume).toBe(0.35)
+  })
+
+  it('reports playback failures without claiming music is playing', async () => {
+    await wrapper.get('[role="combobox"]').setValue('25')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    vi.spyOn(wrapper.get('audio').element as HTMLAudioElement, 'play').mockRejectedValueOnce(new Error('unavailable'))
+    await wrapper.get('[title="Reproducir música"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('[role="alert"]').text()).toContain('No se pudo reproducir')
+    expect(wrapper.get('.music-caption').text()).toContain('En pausa')
   })
 
   it.skip('enable/disable autoplay', async () => {
@@ -89,8 +122,8 @@ describe("AdminPanel component", () => {
   })
 
   it.skip('enables/disables controls when connected/disconnected', async () => {
-    const numberInput = wrapper.get('[title="Número del himno"]')
-    const searchButton = wrapper.get('[title="Buscar"]')
+    const numberInput = wrapper.get('[role="combobox"]')
+
     const startButton = wrapper.get('[title="Principio"]')
     const previousButton = wrapper.get('[title="Verso anterior"]')
     const nextButton = wrapper.get('[title="Verso siguiente"]')

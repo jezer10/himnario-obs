@@ -30,6 +30,7 @@ describe("HymnSearcher component", () => {
 
     expect(sHymn.all).toHaveBeenCalled()
     await flushPromises()
+    await wrapper.get('[role="combobox"]').trigger('focus')
   })
 
   it("has a list of hymns", () => {
@@ -50,11 +51,24 @@ describe("HymnSearcher component", () => {
     expect(emitted.onPlayHymn[0]).toEqual([1])
   })
 
+  it('selects a number with the keyboard and closes with Escape', async () => {
+    const input = wrapper.get('[role="combobox"]')
+    await input.setValue('2')
+    expect(wrapper.findAll('[role="option"]')).toHaveLength(1)
+    await input.trigger('keydown', { key: 'ArrowDown' })
+    await wrapper.get('form').trigger('submit')
+    expect(wrapper.emitted('onPlayHymn')?.[0]).toEqual([2])
+    expect(input.attributes('aria-expanded')).toBe('false')
+    await input.trigger('focus')
+    await input.trigger('keydown', { key: 'Escape' })
+    expect(input.attributes('aria-expanded')).toBe('false')
+  })
+
   describe("when searching", () => {
     it("shows only the hymns that match the search", async () => {
       const search = wrapper.get('[data-test="search-hymn"]')
       await search.setValue("Cantad Alegres")
-      await new Promise((resolve) => setTimeout(resolve, 300))
+
 
       const hymns = wrapper.findAll('[data-test="hymn-item"]')
 
