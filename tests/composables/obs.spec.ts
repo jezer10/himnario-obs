@@ -141,3 +141,37 @@ describe('Hymn output in normal and studio modes', () => {
     expect(call).not.toHaveBeenCalled()
   })
 })
+
+ describe('Text source compatibility', () => {
+  it.each(['text_gdiplus_v3', 'text_gdiplus_v2', 'text_ft2_source_v2'])('creates and validates %s', async (inputKind) => {
+    const original = call.getMockImplementation()!
+    call.mockImplementation(async (request, data) => {
+      if (request === 'GetInputKindList') return { inputKinds: ['image_source', inputKind] } as never
+      if (request === 'GetSceneItemList') return { sceneItems: names.map(sourceName => ({ sourceName, inputKind })) } as never
+      return original(request, data)
+    })
+    await api.createSource('himno_numero')
+    expect(call).toHaveBeenCalledWith('CreateInput', { sceneName: 'Himnario', inputName: 'himno_numero', inputKind })
+    await api.getSceneItems('Himnario')
+    const { useObsStore } = await import('../../src/store')
+    expect(Object.values(useObsStore().sceneStatus.source).every(Boolean)).toBe(true)
+  })
+  it('rejects non-text sources with required names', async () => {
+    call.mockResolvedValue({ sceneItems: names.map(sourceName => ({ sourceName, inputKind: 'image_source' })) } as never)
+    await api.getSceneItems('Himnario')
+    const { useObsStore } = await import('../../src/store')
+    expect(Object.values(useObsStore().sceneStatus.source).some(Boolean)).toBe(false)
+  })
+  it('reports unavailable text support without creating an input', async () => {
+    call.mockResolvedValue({ inputKinds: ['image_source'] } as never)
+    await expect(api.createSource('himno_numero')).rejects.toThrow('compatible')
+    expect(call.mock.calls.some(([request]) => request === 'CreateInput')).toBe(false)
+  })
+  it('propagates creation failures with the source name', async () => {
+    call.mockImplementation(async (request) => {
+      if (request === 'GetInputKindList') return { inputKinds: ['text_gdiplus_v3'] } as never
+      throw new Error('Name already exists')
+    })
+    await expect(api.createSource('himno_numero')).rejects.toThrow('himno_numero')
+  })
+ })

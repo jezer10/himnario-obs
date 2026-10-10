@@ -1,4 +1,4 @@
-import obsWebSocket, { OBSWebSocketError, EventSubscription } from 'obs-websocket-js'
+import obsWebSocket, { EventSubscription } from 'obs-websocket-js'
 import { type Ref, ref } from 'vue'
 import { defaultValues, useObsStore, useSettingsStore } from '../store.ts'
 
@@ -12,6 +12,10 @@ obs.on('ConnectionClosed', () => {
 })
 
 const connected: Ref<boolean> = ref(false)
+
+export function isTextInput(kind: unknown): boolean {
+  return typeof kind === 'string' && /^text_(gdiplus|ft2_source)(?:_v\d+)?$/.test(kind)
+}
 
 export function useObs() {
   const store = useSettingsStore()
@@ -64,11 +68,6 @@ export function useObs() {
       ) {
         sceneStatus.scene = true
         await getSceneItems(store.onSearchHymnScene)
-        const items = obsStore.sourceList.map((s) => s.sourceName)
-        sceneStatus.source.himnoNumero = items.includes('himno_numero')
-        sceneStatus.source.himnoTitulo = items.includes('himno_titulo')
-        sceneStatus.source.versoNumero = items.includes('verso_numero')
-        sceneStatus.source.versoContenido = items.includes('verso_contenido')
       } else {
         sceneStatus.scene = false
         sceneStatus.source = {
@@ -123,6 +122,14 @@ export function useObs() {
     sceneItems.push(...groupSceneItems)
     // Set source list
     obsStore.sourceList = sceneItems
+    const sources = {
+      himnoNumero: 'himno_numero', himnoTitulo: 'himno_titulo',
+      versoNumero: 'verso_numero', versoContenido: 'verso_contenido',
+    } as const
+    for (const key of Object.keys(sources) as (keyof typeof sources)[]) {
+      sceneStatus.source[key] = sceneItems.some(item =>
+        item.sourceName === sources[key] && isTextInput(item.inputKind))
+    }
   }
 
   async function waitForTransition() {
@@ -192,18 +199,19 @@ export function useObs() {
       | 'verso_contenido',
   ) {
     try {
+      const { inputKinds } = await obs.call('GetInputKindList')
+      const inputKind = inputKinds.filter(isTextInput).sort((a, b) => {
+        const family = Number(b.startsWith('text_gdiplus')) - Number(a.startsWith('text_gdiplus'))
+        return family || Number(b.match(/_v(\d+)$/)?.[1] ?? 0) - Number(a.match(/_v(\d+)$/)?.[1] ?? 0)
+      })[0]
+      if (!inputKind) throw new Error('OBS no ofrece un tipo de fuente de texto compatible.')
       await obs.call('CreateInput', {
         sceneName: store.onSearchHymnScene,
         inputName,
-        inputKind: 'text_gdiplus_v2',
+        inputKind,
       })
     } catch (error) {
-      if (!(error instanceof OBSWebSocketError)) {
-        return
-      }
-      if (error.code === 601) {
-        alert(`Este nombre ya está en uso: ${inputName}`)
-      }
+      throw new Error(`No se pudo crear «${inputName}»: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
