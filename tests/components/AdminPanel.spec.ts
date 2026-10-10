@@ -25,20 +25,16 @@ describe("AdminPanel component", () => {
     wrapper = mount(AdminPanel)
   })
 
-  it('connects and disconnects', async () => {
-    const button = wrapper.get('[title="Conectar"]')
-
-    expect(button.text()).toContain('Desconectado')
-
+  it('connects automatically and permits manual disconnection', async () => {
+    await flushPromises()
+    const button = wrapper.get('[aria-label="Conexión con OBS"]')
+    expect(button.attributes('aria-checked')).toBe('true')
     await button.trigger('click')
     await flushPromises()
-
-    expect(button.text()).toContain('Conectado')
-
+    expect(button.attributes('aria-checked')).toBe('false')
     await button.trigger('click')
     await flushPromises()
-
-    expect(button.text()).toContain('Desconectado')
+    expect(button.attributes('aria-checked')).toBe('true')
   })
 
   it('searches a hymn', async () => {
