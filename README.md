@@ -94,14 +94,14 @@ configuración en `vitest.config.ts` y las pruebas están en `tests/`.
 Para agregar dependencias, usa `pnpm add` o `pnpm add -D` y guarda
 `pnpm-lock.yaml`.
 
-Las variables públicas usan el prefijo `VITE_`. Para empaquetar la GUI con
-la API y la música locales, establece `VITE_SAME_HOST=true` antes del build
-(o en un archivo `.env.local`; consulta `.env.example`).
+### Despliegue
 
-Bun solo se necesita para los scripts auxiliares y la distribución de
-ejecutables junto al repositorio externo Himnario API. El desarrollo,
-las pruebas y la compilación del frontend usan pnpm y Node.js.
-El workflow de publicación mantiene los tags `v*.*.*`.
+El despliegue se gestiona mediante la integración del repositorio con Vercel.
+La aplicación usa Vite, se compila con `pnpm build` y genera `dist/`.
+No requiere workflows de GitHub Actions ni generación de ejecutables.
+
+La interfaz consume la API y la música desde servicios externos. Sus direcciones
+se pueden personalizar en la configuración de la aplicación.
 
 ### Sincronizar la apariencia con OBS
 

@@ -35,7 +35,6 @@ onMounted(() => {
         <span class="font-bold">Notas de la versión</span>
         <ul class="list-disc pl-6">
           <li>Se añadió un selector del tema de interfaz (claro y oscuro) en la configuración.</li>
-          <li>Se crearon <a href="https://github.com/jh0rman/himnario-adventista-obs/releases/tag/v3.0.0" target="_blank" rel="noopener noreferrer" class="link">archivos ejecutables</a> de esta aplicación para su uso offline.</li>
         </ul>
       </div>
       <div>
