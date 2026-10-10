@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import AboutApp from '../../src/components/AboutApp.vue'
 import packageJson from '../../package.json'
-import { store } from '../../src/store'
+import { useSettingsStore } from '../../src/store'
 import { DialogHTMLAttributes } from 'vue'
 
 describe("AboutApp component", () => {
@@ -15,7 +15,7 @@ describe("AboutApp component", () => {
   })
 
   it('does not display release notes if not first visit', async () => {
-    store.isFirstTimeInVersion = false
+    useSettingsStore().markVersionSeen()
     const wrapper = mount(AboutApp)
     const dialog = wrapper.find('[data-test="release-notes"]').element as DialogHTMLAttributes
     expect(dialog.open).toBe(false)

@@ -13,22 +13,25 @@
     "lint:fix": "biome check --fix"
   },
   "dependencies": {
-    "vue": "^3.5.42",
-    "obs-websocket-js": "^5.0.8"
+    "@pinia/colada": "^1.4.8",
+    "obs-websocket-js": "^5.0.8",
+    "pinia": "^4.0.3",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "vue": "^3.5.42"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^24.13.3",
     "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.9.1",
+    "happy-dom": "^20.14.6",
+    "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
-    "vue-tsc": "^3.3.11",
-    "@biomejs/biome": "1.9.4",
-    "@vue/test-utils": "^2.4.6",
-    "tailwindcss": "^4.3.3",
-    "@tailwindcss/postcss": "^4.3.3",
     "vitest": "^5.0.3",
-    "happy-dom": "^20.14.6"
+    "vue-tsc": "^3.3.11"
   },
   "packageManager": "pnpm@12.10.1"
 }

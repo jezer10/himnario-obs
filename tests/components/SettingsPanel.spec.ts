@@ -11,38 +11,38 @@ describe("AdminPanel component", () => {
 
   it('enable only instrumental', async () => {
     const onlyInstrumental = wrapper.get('input#oi')
-    await onlyInstrumental.setValue('true')
+    await onlyInstrumental.setValue(true)
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(localStorage.getItem('onlyInstrumental')).toBe('true')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).onlyInstrumental).toBe(true)
   })
 
   it('enable autoplay music', async () => {
     const autoplayMusic = wrapper.get('input#am')
-    await autoplayMusic.setValue('true')
+    await autoplayMusic.setValue(true)
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(localStorage.getItem('autoplayMusic')).toBe('true')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).autoplayMusic).toBe(true)
   })
 
   it('enable autodrive verses', async () => {
     const autodriveVerses = wrapper.get('input#av')
-    await autodriveVerses.setValue('true')
+    await autodriveVerses.setValue(true)
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(localStorage.getItem('autodriveVerses')).toBe('true')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).autodriveVerses).toBe(true)
   })
 
   it('enable switch to hymn scene on search', async () => {
     const onSearchSwitchToHymnScene = wrapper.get('input#sch')
-    await onSearchSwitchToHymnScene.setValue('true')
+    await onSearchSwitchToHymnScene.setValue(true)
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(localStorage.getItem('onSearchSwitchToHymnScene')).toBe('true')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).onSearchSwitchToHymnScene).toBe(true)
   })
 
   it.skip('set hymn scene', async () => {
@@ -51,7 +51,7 @@ describe("AdminPanel component", () => {
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(localStorage.getItem('onSearchHymnScene')).toBe('Scene')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).onSearchHymnScene).toBe('Scene')
   })
 
   it.skip('set switch to scene on music end', async () => {
@@ -60,7 +60,7 @@ describe("AdminPanel component", () => {
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(localStorage.getItem('switchToSceneOnMusicEnd')).toBe('Scene')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).onMusicEndSwitchToScene).toBe('Scene')
   })
 
   it('set OBS websocket url', async () => {
@@ -69,7 +69,7 @@ describe("AdminPanel component", () => {
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(localStorage.getItem('obsWebsocketUrl')).toBe('localhost:4455')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).obsWebsocketUrl).toBe('localhost:4455')
   })
 
   it('set music host url', async () => {
@@ -78,7 +78,7 @@ describe("AdminPanel component", () => {
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(localStorage.getItem('musicHostUrl')).toBe('localhost')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).musicHostUrl).toBe('localhost')
   })
 
   it('set hymnal api url', async () => {
@@ -87,6 +87,6 @@ describe("AdminPanel component", () => {
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(localStorage.getItem('hymnalApiUrl')).toBe('https://sdah.my.to')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).hymnalApiUrl).toBe('https://sdah.my.to')
   })
 })

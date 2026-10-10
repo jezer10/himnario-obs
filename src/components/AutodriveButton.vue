@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { store } from '../store'
+import { useSettingsStore } from '../store'
 import BaseButton from './commons/BaseButton.vue';
+
+const store = useSettingsStore()
 
 function setAutodriveVerses(on: boolean) {
   store.autodriveVerses = on
-  localStorage.setItem('autodriveVerses', `${on}`)
 }
 </script>
 

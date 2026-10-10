@@ -1,25 +1,28 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, useId } from 'vue'
-import type { Hymn } from '../models/hymn'
+import { computed, nextTick, ref, useId } from 'vue'
+import { useQuery } from '@pinia/colada'
+import { useSettingsStore, defaultValues } from '../store'
 import sHymn from '../services/HymnService'
 
 const emit = defineEmits<{ onPlayHymn: [number: number] }>()
 const id = useId()
-const hymns = ref<Hymn[]>([])
+const store = useSettingsStore()
+const { data, isLoading: loading, error } = useQuery({
+  key: () => ['hymns', store.hymnalApiUrl || defaultValues.hymnalApiUrl],
+  query: () => sHymn.all(store.hymnalApiUrl || defaultValues.hymnalApiUrl),
+  staleTime: 300_000,
+})
+const hymns = computed(() => data.value ?? [])
+const failed = computed(() => error.value !== null)
 const query = ref('')
 const open = ref(false)
 const active = ref(-1)
-const loading = ref(true)
-const failed = ref(false)
 const root = ref<HTMLElement>()
 const normalize = (text: string) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim()
 const matches = computed(() => {
   const term = normalize(query.value)
   return hymns.value.filter(h => !term || String(h.number).includes(term) || normalize(h.title).includes(term) || normalize(`${h.number} · ${h.title}`).includes(term))
     .sort((a, b) => Number(String(b.number) === term) - Number(String(a.number) === term))
-})
-onMounted(async () => {
-  try { hymns.value = await sHymn.all() } catch { failed.value = true } finally { loading.value = false }
 })
 function choose(number: number) {
   const hymn = hymns.value.find(h => h.number === number)
