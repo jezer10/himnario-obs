@@ -128,6 +128,87 @@ una caché o un respaldo por sí solos no garantizan disponibilidad permanente.
 Esta propuesta no requiere recuperar la distribución de ejecutables. Por ahora
 se mantiene el proyecto como frontend, sin descargas masivas durante el despliegue.
 
+#### Plan de prueba del modo sin conexión en OBS
+
+Estado al 10 de octubre de 2026: **pendiente de prototipo y de pruebas en OBS**.
+Los flujos siguientes describen el comportamiento que se quiere validar; todavía
+no existen el botón de descarga, la verificación ni la carga sin conexión.
+Primero se probará un himno dentro de un panel de navegador personalizado de OBS.
+Los resultados decidirán si conviene continuar con almacenamiento del navegador
+o evaluar una carpeta de archivos servida por un servidor local.
+
+La propuesta es guardar audios y datos en el almacenamiento interno del navegador
+de OBS (por ejemplo, IndexedDB), asociados al origen de la aplicación. No sería
+una descarga a la carpeta Descargas. No se debe asumir que una copia guardada en
+Chrome esté disponible en OBS, ni que un panel y una fuente de navegador compartan
+los mismos datos. La persistencia y las capacidades necesarias se comprobarán en
+el entorno real; no se consideran garantizadas por usar un navegador basado en CEF.
+
+**Preparación de la prueba**
+
+- Registrar sistema operativo, versión de OBS y de obs-browser/CEF si está
+  disponible, versión del prototipo, URL exacta del panel y direcciones de API
+  y música. Mantener el mismo origen durante las pruebas de persistencia.
+- Usar un entorno de prueba de OBS, fuera de una transmisión, con la escena y
+  fuentes de texto indicadas en la configuración básica y WebSocket habilitado.
+- Elegir un himno con letras, secuencia de tiempos y audios cantado e instrumental;
+  reservar otro himno sin descargar para probar el caso de contenido ausente.
+- Preparar un prototipo que permita descargar, leer lo almacenado, verificar,
+  borrar y mostrar errores. Comprobar en el panel las capacidades de IndexedDB,
+  Cache Storage y service worker, y registrar los límites de espacio disponibles
+  y el resultado de cualquier solicitud de almacenamiento persistente.
+- Comprobar que el servidor permite obtener los bytes del audio desde el origen
+  del panel (CORS). Que un audio se reproduzca por URL no demuestra que la
+  aplicación pueda leerlo, guardarlo y calcular su hash.
+- Para abrir el panel después de reiniciar sin internet, el prototipo también
+  deberá conservar la interfaz y sus recursos, por ejemplo con un service worker
+  sobre HTTPS o localhost. Guardar solo música no resuelve el arranque sin conexión.
+
+**Flujos y criterios de aceptación**
+
+| Flujo | Pasos a probar | Resultado esperado |
+| --- | --- | --- |
+| 1. Referencia con internet | Abrir el panel en OBS, buscar el himno y reproducir ambas variantes; probar letras y avance automático. | Confirmar que el contenido y el control de OBS funcionan antes de evaluar la descarga. |
+| 2. Descargar y comprobar | Descargar letras, tiempos y las variantes elegidas. Esperar la escritura y volver a leer los datos desde el almacenamiento. | Cada variante tiene un estado independiente. Solo se marca disponible el conjunto cuyos datos y audio se guardaron y verificaron. |
+| 3. Reproducir desde la copia | Cortar el acceso a internet manteniendo OBS y su WebSocket local activos. Volver a seleccionar el himno y reproducirlo desde el inicio; avanzar hacia el final. | Audio, letras y tiempos proceden de la copia local. El panel permite controlar OBS y no necesita el servidor externo para ese himno. |
+| 4. Recargar sin internet | Con la red aún desconectada, recargar el panel. | La interfaz abre, encuentra el himno descargado y reproduce su contenido. No basta con que siga funcionando una página ya cargada en memoria. |
+| 5. Reiniciar OBS sin internet | Cerrar OBS completamente, abrirlo de nuevo sin internet y cargar el mismo panel. | La interfaz y los datos persisten; se vuelve a comprobar la disponibilidad y se reproduce el himno. Repetir después de reiniciar la computadora. |
+| 6. Contenido ausente | Sin internet, buscar el himno reservado sin descargar o elegir una variante no guardada. | Mostrar que ese contenido no está disponible sin conexión, sin presentarlo como descargado ni quedar cargando indefinidamente. |
+| 7. Descarga interrumpida | Cortar internet a mitad de descarga; repetir cerrando OBS antes de terminar. Reconectar y reintentar. | Una descarga parcial nunca figura como verificada. El reintento completa una copia válida y no deja duplicados ni residuos parciales permanentes. |
+| 8. Fallos de origen o de integridad | Simular respuesta HTTP de error, archivo vacío, respuesta HTML en lugar de audio y archivo truncado o hash distinto al esperado. | Mostrar el error y permitir reintentar; no marcar éxito por llegar al 100 % de transferencia. |
+| 9. Falta de espacio y borrado | Simular un fallo de cuota/escritura. Borrar una descarga desde el prototipo y volver a consultar su estado. Probar limpieza de datos del navegador solo en el entorno de prueba. | Informar el fallo sin perder otras copias válidas; después del borrado no mostrar disponibilidad que ya no existe. |
+| 10. Actualización y recuperación | Recuperar internet, actualizar un himno y simular un fallo durante el reemplazo. Probar una actualización del panel conservando el origen. | Conservar la última copia válida hasta verificar la nueva; la actualización de la interfaz mantiene o migra los datos y sigue permitiendo el arranque sin conexión. |
+
+**Alcance de la comprobación**
+
+La verificación debe distinguir entre escritura correcta, integridad y reproducción:
+
+- Confirmar una respuesta válida, terminar la escritura y volver a leer tanto
+  el audio como las letras y la secuencia desde el almacenamiento.
+- Si el servidor proporciona tamaño y SHA-256 esperados, comparar la copia
+  guardada con esos valores. Un hash calculado solo sobre lo recibido sirve
+  para detectar cambios posteriores, pero no prueba que el servidor entregó
+  el archivo completo y correcto. Registrar si no existe una referencia de origen.
+- Cargar el audio guardado y probar su reproducción y desplazamiento, incluidas
+  las letras sincronizadas. Cargar los metadatos del audio por sí solo no valida
+  toda la canción; reproducirla completa en la prueba inicial.
+- Registrar qué se comprobó realmente y volver a verificar la presencia de los
+  datos antes de cada sesión. El almacenamiento del navegador no es una garantía
+  de conservación permanente.
+
+**Registro y decisión posterior**
+
+Para cada flujo, anotar: fecha, entorno, himno y variante, pasos realizados,
+resultado esperado y observado, evidencia (captura o registro), y estado
+**pendiente / aprobado / fallido / bloqueado**. Todos están pendientes inicialmente.
+
+Continuar con la opción del navegador solo si el panel real de OBS permite
+guardar, verificar, reproducir y volver a abrir la aplicación sin internet tras
+un cierre completo. Una prueba exitosa en Chrome no aprueba el flujo de OBS.
+Si el arranque sin conexión o la persistencia fallan, documentar la causa y evaluar
+el servidor local con archivos en una carpeta. La implementación definitiva y
+la descarga del catálogo completo quedan para después de estas pruebas.
+
 ### Sincronizar la apariencia con OBS
 
 1. Usa OBS 29 o posterior, con su servidor obs-websocket 5.x habilitado.
