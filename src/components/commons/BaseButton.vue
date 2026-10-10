@@ -12,6 +12,7 @@ withDefaults(
 
 <template>
   <button
+    :aria-label="title"
     :title
     :type
     class="obs-button"

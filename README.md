@@ -103,6 +103,31 @@ No requiere workflows de GitHub Actions ni generación de ejecutables.
 La interfaz consume la API y la música desde servicios externos. Sus direcciones
 se pueden personalizar en la configuración de la aplicación.
 
+### Mejora futura: disponibilidad de la música
+
+Pendiente de diseño e implementación: permitir que la música siga disponible
+si falla el servicio externo, especialmente durante una transmisión en OBS.
+Actualmente el frontend carga los audios desde el servidor configurado;
+el build y el despliegue en Vercel no descargan ni incluyen canciones.
+
+Se considerarán estas opciones:
+
+- Un almacenamiento o servidor de respaldo para la música, gestionado en el
+  proyecto del servicio, con cambio al respaldo desde el frontend si falla
+  el origen principal.
+- Una descarga anticipada y caché local de los himnos seleccionados para una
+  sesión, con indicación de cuáles están disponibles sin conexión y controles
+  para actualizar o borrar los archivos.
+
+Antes de implementarlo, definir el espacio necesario, los costes de transferencia,
+la actualización de los audios y el comportamiento de la caché dentro del navegador
+de OBS. Para una sesión sin conexión también habrá que conservar las letras y los
+datos necesarios de la API. La disponibilidad debe comprobarse antes de la sesión;
+una caché o un respaldo por sí solos no garantizan disponibilidad permanente.
+
+Esta propuesta no requiere recuperar la distribución de ejecutables. Por ahora
+se mantiene el proyecto como frontend, sin descargas masivas durante el despliegue.
+
 ### Sincronizar la apariencia con OBS
 
 1. Usa OBS 29 o posterior, con su servidor obs-websocket 5.x habilitado.

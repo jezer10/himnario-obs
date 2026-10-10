@@ -16,10 +16,11 @@ export function usePlayer() {
     if (!player.value) {
       return
     }
+    const originalVolume = player.value.volume
     const delay = 2000
     await fadeOutVolume(delay)
     player.value.pause()
-    player.value.volume = 1
+    player.value.volume = originalVolume
   }
 
   function fadeOutVolume(delay: number) {
@@ -27,6 +28,7 @@ export function usePlayer() {
       return
     }
     const originalVolume = player.value.volume
+    if (originalVolume === 0) return
     return new Promise<void>((resolve) => {
       const interval = setInterval(
         () => {
@@ -38,7 +40,7 @@ export function usePlayer() {
             clearInterval(interval)
             resolve()
           } else {
-            player.value.volume -= 0.01
+            player.value.volume = Math.max(0, player.value.volume - 0.01)
           }
         },
         delay / (originalVolume / 0.01),
