@@ -1,5 +1,0 @@
-[serve.static]
-plugins = ["bun-plugin-vue3", "bun-plugin-tailwind"]
-
-[test]
-preload = ["./happydom.ts", "bun-plugin-vue3"]

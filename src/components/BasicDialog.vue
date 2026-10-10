@@ -27,9 +27,9 @@ function close() {
 </script>
 
 <template>
-  <dialog ref="dialog" class="backdrop:bg-black/50 w-full max-w-[280px] rounded-lg bg-[#E5E5E5] dark:bg-[#2B2E38] text-black dark:text-white m-auto">
-    <div class="sticky top-0 inline-flex items-center bg-[#E5E5E5] dark:bg-[#2B2E38] border-b border-[#C1C1C1] dark:border-[#4F535E] p-4 py-3 w-full text-base z-10">
-      <h1 class="font-bold leading-none">
+  <dialog ref="dialog" class="obs-dialog m-auto">
+    <div class="obs-dialog-header sticky top-0 flex items-center gap-2 p-2 w-full z-10">
+      <h1 class="font-semibold leading-none">
         {{ title }}
       </h1>
       <slot name="header"></slot>
@@ -41,9 +41,9 @@ function close() {
         <CloseIcon />
       </BaseButton>
     </div>
-    <div class="p-4 py-3 text-sm">
+    <div class="p-2 text-xs">
       <slot></slot>
-      <div class="flex text-base">
+      <div class="flex text-xs">
         <slot name="footer"></slot>
       </div>
     </div>

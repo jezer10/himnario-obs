@@ -133,8 +133,8 @@ async function showVerse(index: number) {
 </script>
 
 <template>
-  <main class="flex flex-col gap-4 px-3 py-2 text-xs">
-    <div class="flex gap-2">
+  <main class="obs-panel flex flex-col gap-2 p-2 text-xs">
+    <div class="flex flex-wrap gap-1">
       <BaseButton
         :title="connected? 'Desconectar' : 'Conectar'"
         class="flex items-center gap-3 w-32 h-7"
@@ -143,14 +143,14 @@ async function showVerse(index: number) {
         <div class="rounded-full w-2 h-2" :class="connected? 'bg-green-600' : 'bg-red-600'"></div>
         {{ connected? 'Conectado' : 'Desconectado' }}
       </BaseButton>
-      <div class="ml-auto flex gap-2">
+      <div class="ml-auto flex flex-wrap gap-1">
         <SetupScene />
         <AutodriveButton />
         <SettingsPanel />
         <AboutApp />
       </div>
     </div>
-    <form class="flex gap-2" onsubmit="return false">
+    <form class="flex flex-wrap gap-1" onsubmit="return false">
       <InputText
         v-model="hymnNumber"
         id="number"
@@ -205,9 +205,9 @@ async function showVerse(index: number) {
     </form>
     <div class="space-y-2">
       <p data-test="hymn-title">
-        Reproduciendo: <span class="text-[#9E9E9E]">{{ hymnData?.title }}</span>
+        Reproduciendo: <span class="obs-muted">{{ hymnData?.title }}</span>
       </p>
-      <audio ref="playerElement" controls class="dark:audio-dark">
+      <audio ref="playerElement" controls class="w-full min-w-0">
         <source :src="hymnData && fileUrl()" type="audio/mpeg">
         Tu navegador no soporta el elemento <code>audio</code>.
       </audio>

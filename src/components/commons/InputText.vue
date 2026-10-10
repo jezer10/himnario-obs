@@ -20,6 +20,6 @@ const value = defineModel()
     :id
     :placeholder
     :type
-    class="text-sm rounded-sm px-2 py-1 outline-hidden bg-white dark:bg-[#454A56]"
+    class="obs-input"
   >
 </template>

@@ -1,9 +1,9 @@
 import { VueWrapper, flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, spyOn } from 'bun:test'
-import HymnSearcherVue from '../HymnSearcher.vue'
-import sHymn from '../../services/HymnService'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import HymnSearcherVue from '../../src/components/HymnSearcher.vue'
+import sHymn from '../../src/services/HymnService'
 
-spyOn(sHymn, 'all').mockResolvedValue([
+vi.spyOn(sHymn, 'all').mockResolvedValue([
   {
     id: 1,
     number: 1,
@@ -54,7 +54,7 @@ describe("HymnSearcher component", () => {
     it("shows only the hymns that match the search", async () => {
       const search = wrapper.get('[data-test="search-hymn"]')
       await search.setValue("Cantad Alegres")
-      await Bun.sleep(300)
+      await new Promise((resolve) => setTimeout(resolve, 300))
 
       const hymns = wrapper.findAll('[data-test="hymn-item"]')
 
@@ -65,7 +65,7 @@ describe("HymnSearcher component", () => {
     it("is diacritics insensitive", async () => {
       const search = wrapper.get('[data-test="search-hymn"]')
       await search.setValue("da gloria al senor")
-      await Bun.sleep(300)
+      await new Promise((resolve) => setTimeout(resolve, 300))
 
       const hymns = wrapper.findAll('[data-test="hymn-item"]')
 

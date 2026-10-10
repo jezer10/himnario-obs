@@ -79,7 +79,7 @@ function normalizeWord(word: string) {
       <button
         v-for="hymn in filteredHymns"
         :key="hymn.id"
-        class="bg-[#F3F3F3] dark:bg-[#3C404B] hover:bg-[#FEFEFF] dark:hover:bg-[#4F535E] w-full flex items-stretch rounded-sm divide-x divide-[#E5E5E5] dark:divide-[#2B2E38]"
+        class="obs-list-item w-full flex items-stretch"
         type="button"
         data-test="hymn-item"
         @click="searchHymn(hymn.number)"

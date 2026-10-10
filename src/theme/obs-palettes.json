@@ -1,0 +1,107 @@
+{
+  "com.obsproject.Yami": {
+    "name": "Yami",
+    "colors": {
+      "base": "#272A33",
+      "control": "#3C404D",
+      "input": "#3C404D",
+      "hover": "#464B59",
+      "pressed": "#1D1F26",
+      "border": "#5B6273",
+      "text": "#FFFFFF",
+      "muted": "#969696",
+      "focus": "#718CDC",
+      "selection": "#284CB8"
+    }
+  },
+  "com.obsproject.Yami.Acri": {
+    "name": "Acri",
+    "colors": {
+      "base": "rgb(24,24,25)",
+      "control": "#162458",
+      "input": "rgb(40,40,42)",
+      "hover": "rgb(42,58,117)",
+      "pressed": "rgb(16,16,16)",
+      "border": "rgb(97,97,97)",
+      "text": "#FFFFFF",
+      "muted": "#969696",
+      "focus": "#718CDC",
+      "selection": "rgb(19,26,48)"
+    }
+  },
+  "com.obsproject.Yami.Classic": {
+    "name": "Classic",
+    "colors": {
+      "base": "rgb(31,30,31)",
+      "control": "rgb(76,76,76)",
+      "input": "rgb(76,76,76)",
+      "hover": "rgb(122,121,122)",
+      "pressed": "rgb(58,57,58)",
+      "border": "rgb(76,76,76)",
+      "text": "#FFFFFF",
+      "muted": "#969696",
+      "focus": "#718CDC",
+      "selection": "rgb(25,52,76)"
+    }
+  },
+  "com.obsproject.Yami.Original": {
+    "name": "Default",
+    "colors": {
+      "base": "#272A33",
+      "control": "#3C404D",
+      "input": "#3C404D",
+      "hover": "#464B59",
+      "pressed": "#1D1F26",
+      "border": "#5B6273",
+      "text": "#FFFFFF",
+      "muted": "#969696",
+      "focus": "#718CDC",
+      "selection": "#284CB8"
+    }
+  },
+  "com.obsproject.Yami.Grey": {
+    "name": "Grey",
+    "colors": {
+      "base": "rgb(47,47,47)",
+      "control": "rgb(67,67,67)",
+      "input": "rgb(67,67,67)",
+      "hover": "rgb(77,77,77)",
+      "pressed": "rgb(33,33,33)",
+      "border": "rgb(97,97,97)",
+      "text": "#FFFFFF",
+      "muted": "#969696",
+      "focus": "#718CDC",
+      "selection": "#284CB8"
+    }
+  },
+  "com.obsproject.Yami.Light": {
+    "name": "Light",
+    "colors": {
+      "base": "rgb(229,229,229)",
+      "control": "rgb(245,245,245)",
+      "input": "rgb(245,245,245)",
+      "hover": "rgb(254,254,254)",
+      "pressed": "rgb(211,211,211)",
+      "border": "rgb(140,140,140)",
+      "text": "#0A0A0A",
+      "muted": "#646464",
+      "focus": "#718CDC",
+      "selection": "rgb(140,181,255)"
+    }
+  },
+  "com.obsproject.Yami.Rachni": {
+    "name": "Rachni",
+    "colors": {
+      "base": "rgb(35,38,41)",
+      "control": "rgb(0,188,212)",
+      "input": "rgb(35,38,41)",
+      "hover": "rgb(145,76,103)",
+      "pressed": "rgb(89,66,79)",
+      "border": "rgb(118,121,124)",
+      "text": "#FFFFFF",
+      "muted": "#969696",
+      "focus": "rgb(240,96,146)",
+      "selection": "rgb(0,188,212)"
+    }
+  }
+}

@@ -69,6 +69,67 @@ La GUI tiene una configuración avanzada que puedes acceder desde el botón tuer
 
 La GUI está pensada para usarla online, pero gracias a la configuración avanzada puedes usarla sin conexión a internet levantando localmente el [Himnario Adventista API](https://github.com/jhormanrus/himnario-adventista-api) y configurando la GUI para usarlo.
 
+## Desarrollo local
+
+Requisitos: Node.js 24 y pnpm 12.10.1 (fijado en `packageManager`).
+
+```sh
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+- `pnpm build`: comprueba los tipos con vue-tsc y genera `dist/` con Vite.
+- `pnpm preview`: sirve la compilación localmente.
+- `pnpm test`: ejecuta las pruebas con Vitest y Happy DOM.
+- `pnpm test:watch`: ejecuta las pruebas en modo interactivo.
+- `pnpm lint`: ejecuta la configuración existente de Biome.
+
+La base es la plantilla oficial `vue-ts` de `create-vite@9.2.1`.
+`vite.config.ts`, `tsconfig.json`, `tsconfig.app.json` y
+`tsconfig.node.json` se conservan sin cambios respecto de esa plantilla.
+Los componentes y estilos del himnario sustituyen la pantalla de demostración.
+Tailwind se añade mediante `postcss.config.js`; Vitest tiene su propia
+configuración en `vitest.config.ts` y las pruebas están en `tests/`.
+
+Para agregar dependencias, usa `pnpm add` o `pnpm add -D` y guarda
+`pnpm-lock.yaml`.
+
+Las variables públicas usan el prefijo `VITE_`. Para empaquetar la GUI con
+la API y la música locales, establece `VITE_SAME_HOST=true` antes del build
+(o en un archivo `.env.local`; consulta `.env.example`).
+
+Bun solo se necesita para los scripts auxiliares y la distribución de
+ejecutables junto al repositorio externo Himnario API. El desarrollo,
+las pruebas y la compilación del frontend usan pnpm y Node.js.
+El workflow de publicación mantiene los tags `v*.*.*`.
+
+### Sincronizar la apariencia con OBS
+
+1. Usa OBS 29 o posterior, con su servidor obs-websocket 5.x habilitado.
+2. Descarga el script desde **Configuración → Personalización → Seguir tema de OBS**
+   o usa [`public/obs/himnario-theme.lua`](public/obs/himnario-theme.lua) de este repositorio.
+3. En OBS abre **Herramientas → Scripts → +** y selecciona el archivo Lua.
+   Conserva el archivo en una ubicación estable. No necesita Python ni un puerto adicional.
+4. Conecta el panel y selecciona **Seguir tema de OBS**. El estado indicará
+   «Sincronizado con …» en un máximo aproximado de tres segundos.
+
+El script comunica el identificador del tema y su modo claro/oscuro por la conexión
+WebSocket existente. El panel incluye paletas de referencia de OBS 32.2.2 para
+Yami, Light, Grey, Acri, Rachni y Classic, obtenidas de los archivos oficiales
+`Yami.obt` y sus variantes. No copia estilos QSS, iconos, escala ni modificaciones
+personales de esas paletas. Con temas desconocidos (incluido System), sincroniza
+solamente claro/oscuro. Las futuras modificaciones de OBS pueden requerir actualizar
+`src/theme/obs-palettes.json`.
+
+Si se desconecta OBS o el script deja de emitir durante doce segundos, el panel
+quita la paleta sincronizada, muestra el estado y usa oscuro como respaldo.
+Las opciones **claro** y **oscuro** manuales siguen disponibles y tienen prioridad.
+Para desactivar el puente, elimina el script de la lista de scripts de OBS.
+
+El puente Lua usa la API de procedimientos de obs-websocket; se debe verificar
+en OBS tras actualizarlo. Referencias: [API de OBS](https://docs.obsproject.com/reference-frontend-api)
+y [API de obs-websocket](https://github.com/obsproject/obs-websocket/blob/master/lib/obs-websocket-api.h).
+
 ## Necesito ayuda
 
 - [Cómo configurar OBS Studio para usar el Himnario Adventista Broadcast](https://github.com/jhormanrus/himnario-adventista-broadcast/wiki/C%C3%B3mo-configurar-OBS-Studio-para-usar-el-Himnario-Adventista-Broadcast)

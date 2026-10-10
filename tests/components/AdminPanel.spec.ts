@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, it, spyOn } from 'bun:test'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { VueWrapper, flushPromises, mount } from '@vue/test-utils'
-import AdminPanel from '../AdminPanel.vue'
-import sHymn from '../../services/HymnService'
+import AdminPanel from '../../src/components/AdminPanel.vue'
+import sHymn from '../../src/services/HymnService'
 import OBSWebSocket from 'obs-websocket-js'
 
-spyOn(sHymn, 'all').mockResolvedValue([])
-spyOn(sHymn, 'byNumber').mockResolvedValue({
+vi.spyOn(sHymn, 'all').mockResolvedValue([])
+vi.spyOn(sHymn, 'byNumber').mockResolvedValue({
   id: 25,
   number: 25,
   title: "Siento la presencia del Señor",
@@ -15,8 +15,8 @@ spyOn(sHymn, 'byNumber').mockResolvedValue({
   verses: [],
   sequence: []
 })
-spyOn(OBSWebSocket.prototype, 'connect').mockResolvedValue(undefined as any)
-spyOn(OBSWebSocket.prototype, 'call').mockResolvedValue({ scenes: [] } as any)
+vi.spyOn(OBSWebSocket.prototype, 'connect').mockResolvedValue(undefined as any)
+vi.spyOn(OBSWebSocket.prototype, 'call').mockResolvedValue({ scenes: [] } as any)
 
 describe("AdminPanel component", () => {
   let wrapper: VueWrapper
@@ -54,7 +54,7 @@ describe("AdminPanel component", () => {
 
     const sourceAudio = wrapper.get('audio>source')
 
-    expect(sourceAudio.attributes('src')).toInclude('025%20-%20Siento%20la%20presencia%20del%20Senor.mp3')
+    expect(sourceAudio.attributes('src')).toContain('025%20-%20Siento%20la%20presencia%20del%20Senor.mp3')
   })
 
   it.skip('enable/disable autoplay', async () => {
@@ -69,8 +69,8 @@ describe("AdminPanel component", () => {
     await flushPromises()
     await enableAutoplayButton.trigger('click')
     
-    expect(enableAutoplayButton.find('.bg-green').exists()).toBeTrue()
-    expect(wrapper.find('[title="Desactivar"]').exists()).toBeTrue()
+    expect(enableAutoplayButton.find('.bg-green').exists()).toBe(true)
+    expect(wrapper.find('[title="Desactivar"]').exists()).toBe(true)
 
     expect(startButton.attributes('disabled')).toBeDefined()
     expect(previousButton.attributes('disabled')).toBeDefined()
@@ -79,8 +79,8 @@ describe("AdminPanel component", () => {
 
     await enableAutoplayButton.trigger('click')
 
-    expect(enableAutoplayButton.find('.bg-red').exists()).toBeTrue()
-    expect(wrapper.find('[title="Activar"]').exists()).toBeTrue()
+    expect(enableAutoplayButton.find('.bg-red').exists()).toBe(true)
+    expect(wrapper.find('[title="Activar"]').exists()).toBe(true)
 
     expect(startButton.attributes('disabled')).toBeDefined()
     expect(previousButton.attributes('disabled')).toBeDefined()
