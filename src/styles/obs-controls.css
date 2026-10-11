@@ -1,0 +1,95 @@
+/* Web adaptation of the installed OBS Yami.obt controls:
+ * QLineEdit, QComboBox and idian--ToggleSwitch.
+ * Reference: https://github.com/obsproject/obs-studio/blob/master/frontend/data/themes/Yami.obt
+ * Keep native HTML interaction; Qt widgets cannot run in a browser dock.
+ * Dimensions approximate OBS's configurable font/padding at our 13px base.
+ */
+.obs-field,
+.obs-select {
+  background-color: var(--obs-input);
+  border-color: var(--obs-input);
+  color: var(--obs-text);
+}
+
+.obs-field:hover {
+  background-color: var(--obs-pressed);
+  border-color: var(--obs-border);
+}
+
+.obs-field:focus {
+  background-color: var(--obs-pressed);
+  border-color: var(--obs-selection);
+  outline: 1px solid var(--obs-focus);
+  outline-offset: 0;
+}
+
+.obs-select {
+  appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 5h12l-6 6z' fill='%230a0a0a'/%3E%3C/svg%3E"), linear-gradient(var(--obs-base), var(--obs-base));
+  background-size: 12px 12px, 1px 100%;
+  background-position: right 7px center, right 26px center;
+  background-repeat: no-repeat;
+}
+
+.dark .obs-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 5h12l-6 6z' fill='white'/%3E%3C/svg%3E"), linear-gradient(var(--obs-base), var(--obs-base));
+}
+
+.obs-select:hover { border-color: var(--obs-border); }
+.obs-select:focus-visible {
+  border-color: var(--obs-border);
+  outline: 1px solid var(--obs-focus);
+}
+
+.obs-field:disabled,
+.obs-select:disabled {
+  background-color: var(--obs-base);
+  color: var(--obs-muted);
+  cursor: default;
+}
+
+.obs-switch-row { min-height: 32px; }
+.obs-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 18px;
+  /* The web dialog uses bg_base, so retain an outline for the off track. */
+  border: 1px solid var(--obs-control);
+  border-radius: 9px;
+  background: var(--obs-base);
+}
+.obs-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--obs-text);
+  transition: transform 120ms ease;
+}
+.obs-switch-row:hover .obs-switch {
+  background: var(--obs-pressed);
+  border-color: var(--obs-border);
+}
+.obs-switch-row input:checked + .obs-switch { background: var(--obs-selection); }
+.obs-switch-row input:checked + .obs-switch::after { transform: translateX(16px); }
+.dark .obs-switch::after { background: white; }
+.obs-switch-row:hover input:checked + .obs-switch {
+  background: color-mix(in srgb, var(--obs-selection) 75%, var(--obs-focus));
+  border-color: var(--obs-text);
+}
+.obs-switch-row input:focus-visible + .obs-switch {
+  outline: 2px solid var(--obs-focus);
+  outline-offset: 2px;
+}
+@media (pointer: coarse), (max-width: 480px) and (min-height: 500px) {
+  .obs-switch-row { min-height: 44px; }
+  .obs-field, .obs-select { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .obs-switch::after { transition: none; }
+}

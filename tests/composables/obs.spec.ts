@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import OBSWebSocket from 'obs-websocket-js'
 import { useObs } from '../../src/composables/obs'
 import { useSettingsStore } from '../../src/store'
@@ -9,7 +9,13 @@ let program = 'Himnario'
 let preview = 'Himnario'
 let api: ReturnType<typeof useObs>
 const call = vi.spyOn(OBSWebSocket.prototype, 'call')
-vi.spyOn(OBSWebSocket.prototype, 'connect').mockResolvedValue(undefined as never)
+const connectSocket = vi.spyOn(OBSWebSocket.prototype, 'connect').mockResolvedValue(undefined as never)
+vi.spyOn(OBSWebSocket.prototype, 'disconnect').mockResolvedValue()
+
+afterEach(async () => {
+  await api.disconnect()
+  vi.useRealTimers()
+})
 
 beforeEach(async () => {
   studio = false
@@ -32,6 +38,39 @@ beforeEach(async () => {
 })
 
 describe('Hymn output in normal and studio modes', () => {
+  it('retries a failed connection automatically', async () => {
+    vi.useFakeTimers()
+    await api.disconnect()
+    connectSocket.mockRejectedValueOnce(new Error('OBS unavailable'))
+    await api.connect()
+    expect(api.connected.value).toBe(false)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(api.connected.value).toBe(true)
+  })
+
+  it('reconnects after the socket closes', async () => {
+    vi.useFakeTimers()
+    const socket = connectSocket.mock.contexts.at(-1) as OBSWebSocket
+    socket.emit('ConnectionClosed', { code: 1006, message: 'Connection lost' })
+    expect(api.connected.value).toBe(false)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(api.connected.value).toBe(true)
+  })
+
+  it('applies a new address while disconnected without waiting for the retry', async () => {
+    vi.useFakeTimers()
+    await api.disconnect()
+    connectSocket.mockRejectedValueOnce(new Error('OBS unavailable'))
+    await api.connect()
+    useSettingsStore().obsWebsocketUrl = 'localhost:4456'
+    await api.reconnect()
+    expect(connectSocket).toHaveBeenLastCalledWith('ws://localhost:4456', undefined, expect.anything())
+    expect(api.connected.value).toBe(true)
+    const attempts = connectSocket.mock.calls.length
+    await vi.advanceTimersByTimeAsync(6000)
+    expect(connectSocket).toHaveBeenCalledTimes(attempts)
+  })
+
   it('updates title and verse visibility in normal mode without a transition', async () => {
     await api.displayHymn(true, '1', 'Título')
     await api.displayHymn(false, '1', 'Estrofa')
@@ -141,3 +180,37 @@ describe('Hymn output in normal and studio modes', () => {
     expect(call).not.toHaveBeenCalled()
   })
 })
+
+ describe('Text source compatibility', () => {
+  it.each(['text_gdiplus_v3', 'text_gdiplus_v2', 'text_ft2_source_v2'])('creates and validates %s', async (inputKind) => {
+    const original = call.getMockImplementation()!
+    call.mockImplementation(async (request, data) => {
+      if (request === 'GetInputKindList') return { inputKinds: ['image_source', inputKind] } as never
+      if (request === 'GetSceneItemList') return { sceneItems: names.map(sourceName => ({ sourceName, inputKind })) } as never
+      return original(request, data)
+    })
+    await api.createSource('himno_numero')
+    expect(call).toHaveBeenCalledWith('CreateInput', { sceneName: 'Himnario', inputName: 'himno_numero', inputKind })
+    await api.getSceneItems('Himnario')
+    const { useObsStore } = await import('../../src/store')
+    expect(Object.values(useObsStore().sceneStatus.source).every(Boolean)).toBe(true)
+  })
+  it('rejects non-text sources with required names', async () => {
+    call.mockResolvedValue({ sceneItems: names.map(sourceName => ({ sourceName, inputKind: 'image_source' })) } as never)
+    await api.getSceneItems('Himnario')
+    const { useObsStore } = await import('../../src/store')
+    expect(Object.values(useObsStore().sceneStatus.source).some(Boolean)).toBe(false)
+  })
+  it('reports unavailable text support without creating an input', async () => {
+    call.mockResolvedValue({ inputKinds: ['image_source'] } as never)
+    await expect(api.createSource('himno_numero')).rejects.toThrow('compatible')
+    expect(call.mock.calls.some(([request]) => request === 'CreateInput')).toBe(false)
+  })
+  it('propagates creation failures with the source name', async () => {
+    call.mockImplementation(async (request) => {
+      if (request === 'GetInputKindList') return { inputKinds: ['text_gdiplus_v3'] } as never
+      throw new Error('Name already exists')
+    })
+    await expect(api.createSource('himno_numero')).rejects.toThrow('himno_numero')
+  })
+ })

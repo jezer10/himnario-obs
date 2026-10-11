@@ -12,6 +12,9 @@ const sceneStatus = obsStore.sceneStatus
 
 const { on, connected, getSceneItems, createScene, createSource } = useObs()
 
+const creating = ref(false)
+const creationError = ref('')
+
 const dialog = ref<InstanceType<typeof BasicDialog> | null>(null)
 
 watch(connected, async (connected) => {
@@ -41,91 +44,96 @@ async function checkSource({
   if (sceneName !== store.onSearchHymnScene) {
     return
   }
-  let source: keyof typeof sceneStatus.source
-  if (sourceName === 'verso_contenido') {
-    source = 'versoContenido'
-  } else if (sourceName === 'verso_numero') {
-    source = 'versoNumero'
-  } else if (sourceName === 'himno_titulo') {
-    source = 'himnoTitulo'
-  } else if (sourceName === 'himno_numero') {
-    source = 'himnoNumero'
-  } else {
-    return
+  if (!['verso_contenido', 'verso_numero', 'himno_titulo', 'himno_numero'].includes(sourceName)) return
+  try {
+    await getSceneItems(store.onSearchHymnScene)
+  } catch (error) {
+    creationError.value = error instanceof Error ? error.message : String(error)
   }
-  await getSceneItems(store.onSearchHymnScene)
-  const sceneItem = obsStore.sourceList.find(
-    (source) => source.sourceName === sourceName,
-  )
-  sceneStatus.source[source] = Boolean(
-    sceneItem && sceneItem.inputKind === 'text_gdiplus_v2',
-  )
 }
 
 async function createSceneAndSources() {
-  !sceneStatus.scene && (await createScene())
-  !sceneStatus.source.versoContenido && (await createSource('verso_contenido'))
-  !sceneStatus.source.versoNumero && (await createSource('verso_numero'))
-  !sceneStatus.source.himnoTitulo && (await createSource('himno_titulo'))
-  !sceneStatus.source.himnoNumero && (await createSource('himno_numero'))
+  if (creating.value) return
+  creating.value = true
+  creationError.value = ''
+  try {
+    if (!sceneStatus.scene) await createScene()
+    sceneStatus.scene = true
+    await getSceneItems(store.onSearchHymnScene)
+    if (!sceneStatus.source.versoContenido) await createSource('verso_contenido')
+    if (!sceneStatus.source.versoNumero) await createSource('verso_numero')
+    if (!sceneStatus.source.himnoTitulo) await createSource('himno_titulo')
+    if (!sceneStatus.source.himnoNumero) await createSource('himno_numero')
+    await getSceneItems(store.onSearchHymnScene)
+    if (!Object.values(sceneStatus.source).every(Boolean)) {
+      throw new Error('No se pudieron verificar todas las fuentes de texto. Revisa los recursos de la escena.')
+    }
+  } catch (error) {
+    creationError.value = error instanceof Error ? error.message : String(error)
+  } finally {
+    creating.value = false
+  }
 }
+
 </script>
 
 <template>
   <BasicDialog ref="dialog" title="" data-test="settings">
     <template v-slot:header>
-      <div class="flex items-center gap-2">
-        <div class="rounded-full w-2 h-2" :class="sceneStatus.scene? 'bg-green-600' : 'bg-red-600'"></div>
+      <div class="flex min-w-0 items-center gap-2 [overflow-wrap:anywhere]">
+        <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.scene? 'bg-green-600' : 'bg-red-600'"></div>
         {{ store.onSearchHymnScene }}
       </div>
     </template>
     <div class="space-y-1">
-      <div class="bg-[#F3F3F3] dark:bg-[#3C404B] w-full flex items-stretch rounded-sm divide-x divide-[#E5E5E5] dark:divide-[#2B2E38]">
+      <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="rounded-full w-2 h-2" :class="sceneStatus.source.himnoNumero? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoNumero? 'bg-green-600' : 'bg-red-600'"></div>
         </div>
-        <div class="px-2 py-1 grow flex">
+        <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           himno_numero
-          <span class="ms-auto opacity-60">Texto (GDI+)</span>
+          <span class="ms-auto opacity-60">Texto</span>
         </div>
       </div>
-      <div class="bg-[#F3F3F3] dark:bg-[#3C404B] w-full flex items-stretch rounded-sm divide-x divide-[#E5E5E5] dark:divide-[#2B2E38]">
+      <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="rounded-full w-2 h-2" :class="sceneStatus.source.himnoTitulo? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoTitulo? 'bg-green-600' : 'bg-red-600'"></div>
         </div>
-        <div class="px-2 py-1 grow flex">
+        <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           himno_titulo
-          <span class="ms-auto opacity-60">Texto (GDI+)</span>
+          <span class="ms-auto opacity-60">Texto</span>
         </div>
       </div>
-      <div class="bg-[#F3F3F3] dark:bg-[#3C404B] w-full flex items-stretch rounded-sm divide-x divide-[#E5E5E5] dark:divide-[#2B2E38]">
+      <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="rounded-full w-2 h-2" :class="sceneStatus.source.versoNumero? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoNumero? 'bg-green-600' : 'bg-red-600'"></div>
         </div>
-        <div class="px-2 py-1 grow flex">
+        <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           verso_numero
-          <span class="ms-auto opacity-60">Texto (GDI+)</span>
+          <span class="ms-auto opacity-60">Texto</span>
         </div>
       </div>
-      <div class="bg-[#F3F3F3] dark:bg-[#3C404B] w-full flex items-stretch rounded-sm divide-x divide-[#E5E5E5] dark:divide-[#2B2E38]">
+      <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="rounded-full w-2 h-2" :class="sceneStatus.source.versoContenido? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoContenido? 'bg-green-600' : 'bg-red-600'"></div>
         </div>
-        <div class="px-2 py-1 grow flex">
+        <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           verso_contenido
-          <span class="ms-auto opacity-60">Texto (GDI+)</span>
+          <span class="ms-auto opacity-60">Texto</span>
         </div>
       </div>
       <p v-if="!sceneStatus.scene || Object.values(sceneStatus.source).some(v => !v)" class="pt-1 pb-2">⚠️ Se encontraron recursos faltantes</p>
       <p v-else class="pt-1">✅ Todos los recursos están listos</p>
     </div>
     <template v-slot:footer>
+      <p v-if="creationError" role="alert">{{ creationError }}</p>
       <BaseButton
         v-if="!sceneStatus.scene || Object.values(sceneStatus.source).some(v => !v)"
         class="ml-auto"
+        :disabled="creating"
         @click="createSceneAndSources()"
       >
-        Crear recursos
+        {{ creating ? 'Creando…' : 'Crear recursos' }}
       </BaseButton>
     </template>
   </BasicDialog>
