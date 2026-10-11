@@ -1,19 +1,24 @@
 # Himnario Adventista Broadcast
 
+## Interfaz con PrimeVue 5
+
+La aplicación usa PrimeVue 5 con el tema oficial Aura y PrimeIcons. El modo claro/oscuro puede
+seguir a OBS; los colores y el aspecto de los controles corresponden a Aura.
+Los controles comunes envuelven Button, InputText, Select, ToggleSwitch y Slider;
+la búsqueda usa AutoComplete, las ventanas Dialog, el volumen Popover y los avisos Message.
+
+Copia .env.example a .env.local y configura VITE_PRIMEUI_LICENSE con tu clave
+Community o comercial de PrimeUI. Reinicia Vite después de cambiarla; para producción,
+configúrala antes de ejecutar pnpm build. Vite incorpora esta clave al cliente.
+Sin una clave válida, PrimeUI muestra su aviso de licencia.
+Consulta la [configuración oficial](https://primevue.dev/configuration/).
+
+Validación: pnpm build y pnpm test.
+
 ## Componentes web con estilo OBS
 
 La [colección OBS UI](../obs-ui-web/README.md) vive en el proyecto hermano
 `obs-ui-web`. Sus once componentes y su galería se desarrollan y ejecutan por separado.
-
-## Antecedentes de exploración nativa
-
-La [especificación de componentes Qt para vistas de OBS](docs/obs-ui/README.md)
-define el catálogo, los contratos Rust/Qt y el plan de extracción de una futura
-biblioteca. Es documentación de diseño; la aplicación de este repositorio sigue
-siendo web.
-
-La [galería Qt de componentes](native/obs-ui/README.md) contiene la primera
-implementación nativa independiente y las instrucciones para compilarla y probarla.
 
 ![obs-websocket](https://img.shields.io/badge/obs--websocket-5.x-blue?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/jhormanrus/himnario-adventista-broadcast?style=for-the-badge)

@@ -1,0 +1,17 @@
+@theme inline {
+  --font-sans: var(--p-typography-font-family);
+  --color-obs-base: var(--p-content-background);
+  --color-obs-control: var(--p-button-secondary-background);
+  --color-obs-input: var(--p-form-field-background);
+  --color-obs-hover: var(--p-content-hover-background);
+  --color-obs-pressed: var(--p-button-secondary-active-background);
+  --color-obs-border: var(--p-content-border-color);
+  --color-obs-text: var(--p-text-color);
+  --color-obs-muted: var(--p-text-muted-color);
+  --color-obs-focus: var(--p-primary-color);
+  --color-status-success: var(--p-button-success-background);
+  --color-status-danger: var(--p-button-danger-background);
+  --color-obs-selection: var(--p-highlight-background);
+}
+@custom-variant compact { @media (max-width: 360px) { @slot; } }
+@custom-variant spacious (@media (min-width: 800px) and (min-height: 600px));

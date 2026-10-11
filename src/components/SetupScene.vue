@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Message from 'primevue/message'
 import type { OBSEventTypes } from 'obs-websocket-js'
 import { ref, watch } from 'vue'
 import { useObs } from '../composables/obs'
@@ -81,14 +82,14 @@ async function createSceneAndSources() {
   <BasicDialog ref="dialog" title="" data-test="settings">
     <template v-slot:header>
       <div class="flex min-w-0 items-center gap-2 [overflow-wrap:anywhere]">
-        <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.scene? 'bg-green-600' : 'bg-red-600'"></div>
+        <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.scene? 'bg-status-success' : 'bg-status-danger'"></div>
         {{ store.onSearchHymnScene }}
       </div>
     </template>
     <div class="space-y-1">
       <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoNumero? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoNumero? 'bg-status-success' : 'bg-status-danger'"></div>
         </div>
         <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           himno_numero
@@ -97,7 +98,7 @@ async function createSceneAndSources() {
       </div>
       <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoTitulo? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoTitulo? 'bg-status-success' : 'bg-status-danger'"></div>
         </div>
         <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           himno_titulo
@@ -106,7 +107,7 @@ async function createSceneAndSources() {
       </div>
       <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoNumero? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoNumero? 'bg-status-success' : 'bg-status-danger'"></div>
         </div>
         <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           verso_numero
@@ -115,7 +116,7 @@ async function createSceneAndSources() {
       </div>
       <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoContenido? 'bg-green-600' : 'bg-red-600'"></div>
+          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoContenido? 'bg-status-success' : 'bg-status-danger'"></div>
         </div>
         <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           verso_contenido
@@ -126,7 +127,7 @@ async function createSceneAndSources() {
       <p v-else class="pt-1">✅ Todos los recursos están listos</p>
     </div>
     <template v-slot:footer>
-      <p v-if="creationError" role="alert">{{ creationError }}</p>
+      <Message v-if="creationError" severity="error" :closable="false">{{ creationError }}</Message>
       <BaseButton
         v-if="!sceneStatus.scene || Object.values(sceneStatus.source).some(v => !v)"
         class="ml-auto"

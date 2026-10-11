@@ -27,6 +27,8 @@ describe("AdminPanel component", () => {
 
   it('connects automatically and shows status beside the socket URL', async () => {
     await flushPromises()
+    await wrapper.get('button[title="Configuración"]').trigger('click')
+    await flushPromises()
     expect(wrapper.get('label[for="ow"]').element.parentElement?.textContent).toContain('Conectado')
     expect(wrapper.find('[aria-label="Conexión con OBS"]').exists()).toBe(false)
   })
