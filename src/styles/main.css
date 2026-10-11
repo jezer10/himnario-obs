@@ -1,6 +1,7 @@
+@layer theme, base, primevue, utilities;
 @import "tailwindcss";
-@import "./obs-theme.css";
-@import "./obs-controls.css";
+@import "./prime-theme.css";
+
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -19,7 +20,7 @@
 @media (pointer: coarse), (max-width: 480px) and (min-height: 500px) {
   @layer base {
     .hymnal-panel button,
-    .obs-button {
+    .p-button {
       min-width: 44px !important;
       min-height: 44px !important;
     }

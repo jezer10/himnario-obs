@@ -1,3 +1,4 @@
+import PrimeVue from 'primevue/config'
 import { afterEach, beforeEach } from 'vitest'
 import { enableAutoUnmount } from '@vue/test-utils'
 
@@ -13,7 +14,8 @@ beforeEach(() => {
   const pinia = createAppPinia()
   createApp({}).use(pinia).use(PiniaColada)
   setActivePinia(pinia)
-  config.global.plugins = [pinia, PiniaColada]
+  config.global.plugins = [pinia, PiniaColada, [PrimeVue, { unstyled: true }]]
+  config.global.stubs = { teleport: true }
   initializeTheme()
 })
 enableAutoUnmount(afterEach)

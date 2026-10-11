@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { VueWrapper, mount } from '@vue/test-utils'
+import { VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import SettingsPanel from '../../src/components/SettingsPanel.vue'
 
 describe("AdminPanel component", () => {
@@ -7,6 +7,9 @@ describe("AdminPanel component", () => {
 
   beforeEach(async () => {
     wrapper = mount(SettingsPanel)
+    await flushPromises()
+    await wrapper.get('button[title="Configuración"]').trigger('click')
+    await flushPromises()
   })
 
   it('enable only instrumental', async () => {

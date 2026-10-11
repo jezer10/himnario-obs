@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Message from 'primevue/message'
 import type { OBSEventTypes } from 'obs-websocket-js'
 import { ref, watch } from 'vue'
 import { useObs } from '../composables/obs'
@@ -126,7 +127,7 @@ async function createSceneAndSources() {
       <p v-else class="pt-1">✅ Todos los recursos están listos</p>
     </div>
     <template v-slot:footer>
-      <p v-if="creationError" role="alert">{{ creationError }}</p>
+      <Message v-if="creationError" severity="error" :closable="false">{{ creationError }}</Message>
       <BaseButton
         v-if="!sceneStatus.scene || Object.values(sceneStatus.source).some(v => !v)"
         class="ml-auto"

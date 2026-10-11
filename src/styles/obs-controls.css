@@ -1,7 +1,7 @@
 /* Web adaptation of the installed OBS Yami.obt controls:
  * QLineEdit, QComboBox and idian--ToggleSwitch.
  * Reference: https://github.com/obsproject/obs-studio/blob/master/frontend/data/themes/Yami.obt
- * Keep native HTML interaction; Qt widgets cannot run in a browser dock.
+ * PrimeVue unstyled controls share the OBS palette.
  * Dimensions approximate OBS's configurable font/padding at our 13px base.
  */
 .obs-field,
@@ -23,18 +23,7 @@
   outline-offset: 0;
 }
 
-.obs-select {
-  appearance: none;
-  padding-right: 32px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 5h12l-6 6z' fill='%230a0a0a'/%3E%3C/svg%3E"), linear-gradient(var(--obs-base), var(--obs-base));
-  background-size: 12px 12px, 1px 100%;
-  background-position: right 7px center, right 26px center;
-  background-repeat: no-repeat;
-}
-
-.dark .obs-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 5h12l-6 6z' fill='white'/%3E%3C/svg%3E"), linear-gradient(var(--obs-base), var(--obs-base));
-}
+.obs-select { position: relative; }
 
 .obs-select:hover { border-color: var(--obs-border); }
 .obs-select:focus-visible {
@@ -75,14 +64,14 @@
   background: var(--obs-pressed);
   border-color: var(--obs-border);
 }
-.obs-switch-row input:checked + .obs-switch { background: var(--obs-selection); }
-.obs-switch-row input:checked + .obs-switch::after { transform: translateX(16px); }
+.obs-switch-row .obs-switch:has(input:checked) { background: var(--obs-selection); }
+.obs-switch-row .obs-switch:has(input:checked)::after { transform: translateX(16px); }
 .dark .obs-switch::after { background: white; }
-.obs-switch-row:hover input:checked + .obs-switch {
+.obs-switch-row:hover .obs-switch:has(input:checked) {
   background: color-mix(in srgb, var(--obs-selection) 75%, var(--obs-focus));
   border-color: var(--obs-text);
 }
-.obs-switch-row input:focus-visible + .obs-switch {
+.obs-switch-row .obs-switch:has(input:focus-visible) {
   outline: 2px solid var(--obs-focus);
   outline-offset: 2px;
 }
@@ -93,3 +82,19 @@
 @media (prefers-reduced-motion: reduce) {
   .obs-switch::after { transition: none; }
 }
+
+.obs-switch-input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 1; }
+.obs-select-overlay { border: 1px solid var(--obs-border); border-radius: 4px; background: var(--obs-base); color: var(--obs-text); box-shadow: 0 4px 12px #0004; }
+.obs-select-option[data-p-focused="true"] { background: var(--obs-hover); }
+.obs-select-option[aria-selected="true"] { background: var(--obs-selection); }
+
+.obs-slider { position: relative; height: 24px; cursor: pointer; touch-action: none; }
+.obs-slider-track { position: absolute; top: 10px; width: 100%; height: 4px; background: var(--obs-border); border-radius: 4px; }
+.obs-slider-range { position: absolute; height: 100%; background: var(--obs-focus); border-radius: inherit; }
+.obs-slider-handle { position: absolute; top: 50%; width: 12px; height: 12px; transform: translateY(-50%); border-radius: 50%; background: var(--obs-focus); }
+.obs-slider-input { position: absolute; inset: -6px; width: 24px; height: 24px; opacity: 0; cursor: pointer; }
+.obs-slider-handle:focus-within { outline: 2px solid var(--obs-focus); outline-offset: 3px; }
+.obs-slider[data-disabled] { opacity: .45; cursor: default; }
+.obs-select-option[data-p~="focused"] { background: var(--obs-hover); }
+.obs-select-option[data-p~="selected"] { background: var(--obs-selection); }
+.obs-button .pi { font-size: 18px; }

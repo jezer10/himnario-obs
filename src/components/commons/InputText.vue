@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PrimeInputText from 'primevue/inputtext'
 withDefaults(
   defineProps<{
     id?: string
@@ -10,16 +11,15 @@ withDefaults(
   },
 )
 
-const value = defineModel()
+const value = defineModel<string>()
 </script>
 
 <template>
-  <input
+  <PrimeInputText
     v-model="value"
-    v-bind="$attrs"
     :id
     :placeholder
     :type
-    class="obs-field min-h-7 min-w-0 rounded border px-2 py-1 text-inherit"
-  >
+    size="small" class="min-w-0 w-full"
+  />
 </template>

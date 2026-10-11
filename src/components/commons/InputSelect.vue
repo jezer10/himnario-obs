@@ -1,13 +1,9 @@
 <script setup lang="ts">
-defineProps<{
-  id?: string
-}>()
-
-const value = defineModel()
+import Select from 'primevue/select'
+defineProps<{ id?: string; options: { label: string; value: string }[] }>()
+const value = defineModel<string>()
 </script>
-
 <template>
-  <select v-model="value" :id class="obs-select min-h-7 min-w-0 rounded border px-2 py-1 text-inherit">
-    <slot />
-  </select>
+  <Select v-model="value" :input-id="id" :options="options" option-label="label" option-value="value"
+    append-to="body" size="small" class="min-w-0 w-full" />
 </template>
