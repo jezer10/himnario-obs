@@ -1,5 +1,20 @@
 # Himnario Adventista Broadcast
 
+## Componentes web con estilo OBS
+
+La [colección OBS UI](../obs-ui-web/README.md) vive en el proyecto hermano
+`obs-ui-web`. Sus once componentes y su galería se desarrollan y ejecutan por separado.
+
+## Antecedentes de exploración nativa
+
+La [especificación de componentes Qt para vistas de OBS](docs/obs-ui/README.md)
+define el catálogo, los contratos Rust/Qt y el plan de extracción de una futura
+biblioteca. Es documentación de diseño; la aplicación de este repositorio sigue
+siendo web.
+
+La [galería Qt de componentes](native/obs-ui/README.md) contiene la primera
+implementación nativa independiente y las instrucciones para compilarla y probarla.
+
 ![obs-websocket](https://img.shields.io/badge/obs--websocket-5.x-blue?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/jhormanrus/himnario-adventista-broadcast?style=for-the-badge)
 
