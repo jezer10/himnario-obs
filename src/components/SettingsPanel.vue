@@ -69,7 +69,7 @@ async function closeDialog() {
           <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
             <label for="ow">URL de OBS Websocket</label>
             <span class="flex items-center gap-1 text-xs" role="status">
-              <span aria-hidden="true" class="size-[7px] shrink-0 rounded-full" :class="connected ? 'bg-green-600' : 'bg-red-600'"></span>
+              <span aria-hidden="true" class="size-[7px] shrink-0 rounded-full" :class="connected ? 'bg-status-success' : 'bg-status-danger'"></span>
               {{ connected ? 'Conectado' : connecting ? 'Conectando…' : 'Reintentando…' }}
             </span>
           </div>

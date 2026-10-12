@@ -41,12 +41,12 @@ onMounted(() => {
         <span class="font-bold">Guías</span>
         <ul class="list-disc pl-6">
           <li>
-            <a href="https://github.com/jhormanrus/himnario-adventista-broadcast/wiki/C%C3%B3mo-configurar-OBS-Studio-para-usar-el-Himnario-Adventista-Broadcast" target="_blank" rel="noopener noreferrer" class="text-sky-500 hover:underline focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
+            <a href="https://github.com/jhormanrus/himnario-adventista-broadcast/wiki/C%C3%B3mo-configurar-OBS-Studio-para-usar-el-Himnario-Adventista-Broadcast" target="_blank" rel="noopener noreferrer" class="text-obs-focus hover:underline focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
               Cómo configurar OBS Studio para usar el Himnario Adventista Broadcast
             </a>
           </li>
           <li>
-            <a href="https://github.com/jhormanrus/himnario-adventista-broadcast/wiki/C%C3%B3mo-configurar-el-servidor-WebSocket-en-OBS-Studio" target="_blank" rel="noopener noreferrer" class="text-sky-500 hover:underline focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
+            <a href="https://github.com/jhormanrus/himnario-adventista-broadcast/wiki/C%C3%B3mo-configurar-el-servidor-WebSocket-en-OBS-Studio" target="_blank" rel="noopener noreferrer" class="text-obs-focus hover:underline focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">
               Cómo configurar el servidor WebSocket en OBS Studio
             </a>
           </li>
@@ -54,7 +54,7 @@ onMounted(() => {
       </div>
       <div>
         <span class="font-bold">Repositorio</span>
-        <p><a href="https://github.com/jhormanrus/himnario-adventista-broadcast" target="_blank" rel="noopener noreferrer" class="text-sky-500 hover:underline focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">himnario-adventista-broadcast</a></p>
+        <p><a href="https://github.com/jhormanrus/himnario-adventista-broadcast" target="_blank" rel="noopener noreferrer" class="text-obs-focus hover:underline focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:outline-offset-1">himnario-adventista-broadcast</a></p>
       </div>
       <div>
         <span class="font-bold">Licencia</span>

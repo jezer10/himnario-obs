@@ -185,7 +185,7 @@ async function showVerse(index: number) {
 </script>
 
 <template>
-  <main class="hymnal-panel box-border mx-auto grid h-dvh min-h-[260px] max-w-[760px] grid-rows-[auto_minmax(0,1fr)_auto] gap-1 p-1.5 text-[13px] [&_button]:min-h-8 spacious:max-w-none spacious:gap-3 spacious:px-6 spacious:pt-4 spacious:pb-0">
+  <main class="box-border mx-auto grid h-dvh min-h-[260px] max-w-[760px] grid-rows-[auto_minmax(0,1fr)_auto] gap-1 p-1.5 reading:gap-2 reading:p-3 spacious:max-w-none spacious:gap-3 spacious:px-6 spacious:pt-4 spacious:pb-0">
     <header class="flex min-w-0 items-center justify-between gap-1 compact:relative compact:justify-end spacious:mx-auto spacious:w-full spacious:max-w-[760px]">
       <BaseButton class="hidden compact:mr-auto compact:grid compact:place-items-center" title="Buscar himno" :aria-expanded="searchOpen" aria-controls="search-area" @click="toggleSearch"><i class="pi pi-search" aria-hidden="true" /></BaseButton>
       <div ref="searchArea" id="search-area" class="min-w-0 flex-1 compact:hidden compact:data-[open=true]:block compact:data-[open=true]:absolute compact:data-[open=true]:top-[calc(100%+4px)] compact:data-[open=true]:inset-x-0 compact:data-[open=true]:z-25 compact:data-[open=true]:bg-obs-base" :data-open="searchOpen"><HymnSearcher @on-play-hymn="search($event); searchOpen = false" /></div>
@@ -195,14 +195,14 @@ async function showVerse(index: number) {
 
     <section class="flex min-h-0 min-w-0 flex-col overflow-auto p-1 text-center [overflow-wrap:anywhere] spacious:mx-auto spacious:w-full spacious:max-w-[1000px] spacious:p-4" aria-label="Vista previa del himno">
 
-      <div class="hymnal-preview min-h-0 flex-1 content-center overflow-auto py-[3px] [scrollbar-width:thin] [scrollbar-color:var(--obs-border)_transparent] focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:-outline-offset-2" tabindex="0" aria-label="Letra del verso seleccionado">
-        <p v-if="currentVerse.content" class="hymnal-verse whitespace-pre-line text-[13px] leading-[1.35] spacious:text-[clamp(20px,2.4vw,34px)] spacious:leading-[1.55]">{{ currentVerse.content }}</p>
-        <p v-else class="hymnal-empty text-obs-muted">{{ hymnData ? 'Avanza al primer verso' : 'Busca por número o nombre' }}</p>
+      <div class="min-h-0 short:min-h-8 flex-1 content-center overflow-auto py-[3px] [scrollbar-width:thin] [scrollbar-color:var(--p-content-border-color)_transparent] focus-visible:outline-2 focus-visible:outline-obs-focus focus-visible:-outline-offset-2" tabindex="0" aria-label="Letra del verso seleccionado">
+        <p v-if="currentVerse.content" class="whitespace-pre-line leading-[1.35] reading:text-[clamp(16px,2.4vw,34px)] reading:leading-[1.55] spacious:text-[clamp(20px,2.4vw,34px)] spacious:leading-[1.55]">{{ currentVerse.content }}</p>
+        <p v-else class="text-obs-muted reading:text-sm">{{ hymnData ? 'Avanza al primer verso' : 'Busca por número o nombre' }}</p>
       </div>
       <p v-if="hymnData" class="mt-0.5 shrink-0 text-[11px] spacious:mt-2.5 spacious:text-[13px] text-obs-muted" role="status">{{ hymnData ? (hymnIndex === 0 ? 'Título · ' + hymnData.sequence.length + ' pasos' : currentVerse.label + ' · paso ' + hymnIndex + ' de ' + hymnData.sequence.length) : '' }}</p>
     </section>
 
-    <section class="min-w-0 pt-0.5 spacious:-mx-6 spacious:grid spacious:grid-cols-[44px_minmax(0,1fr)_auto_minmax(0,1fr)] spacious:grid-rows-[44px_22px_14px] spacious:items-center spacious:gap-x-3 spacious:gap-y-0.5 spacious:border-t spacious:border-obs-border spacious:bg-obs-control spacious:px-6 spacious:pt-2.5 spacious:pb-2" aria-label="Reproductor de música">
+    <section class="min-w-0 pt-0.5 spacious:-mx-6 spacious:grid spacious:grid-cols-[44px_minmax(0,1fr)_auto_minmax(0,1fr)] spacious:grid-rows-[44px_22px_14px] spacious:touch:grid-rows-[44px_44px_14px] spacious:items-center spacious:gap-x-3 spacious:gap-y-0.5 spacious:border-t spacious:border-obs-border spacious:bg-obs-control spacious:px-6 spacious:pt-2.5 spacious:pb-2" aria-label="Reproductor de música">
       <div class="hidden spacious:col-start-1 spacious:row-start-1 spacious:grid spacious:size-11 spacious:place-items-center spacious:rounded-md spacious:border spacious:border-obs-border spacious:bg-obs-base spacious:text-[17px] spacious:font-semibold spacious:tabular-nums" :aria-label="hymnData ? 'Himno ' + hymnData.number : 'Sin himno'">{{ hymnData ? String(hymnData.number).padStart(3, '0') : '—' }}</div>
       <div class="mb-1 shrink-0 text-center spacious:col-start-2 spacious:row-start-1 spacious:m-0 spacious:min-w-0 spacious:text-left">
         <span class="text-obs-muted hidden">{{ hymnData ? 'Himno ' + String(hymnData.number).padStart(3, '0') : 'Himnario' }}</span>
@@ -227,9 +227,9 @@ async function showVerse(index: number) {
       <div class="mt-[-3px] mb-1 flex justify-between pr-10 text-[11px] tabular-nums spacious:col-span-full spacious:row-start-3 spacious:m-0 spacious:pr-11 spacious:text-[10px] text-obs-muted"><span>{{ formatTime(displayTime) }}</span><span>{{ formatTime(duration) }}</span></div>
       <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 [&_svg]:size-[18px] spacious:contents spacious:[&_svg]:size-[22px]">
         <span class="spacious:hidden" aria-hidden="true"></span>
-        <div class="flex items-center gap-1.5 [&_button]:grid [&_button]:w-[34px] [&_button]:place-items-center [&_button]:p-1.5 spacious:col-start-3 spacious:row-start-1 spacious:gap-2.5 spacious:[&_button]:w-9 spacious:[&_button]:min-h-9" :title="controlHint">
+        <div class="flex items-center gap-1.5 spacious:col-start-3 spacious:row-start-1 spacious:gap-2.5" :title="controlHint">
 <BaseButton :disabled="!connected || !store.onSearchHymnScene || store.autodriveVerses || hymnIndex < 2" title="Verso anterior" @click="hymnIndex--"><i class="pi pi-step-backward" aria-hidden="true" /></BaseButton>
-        <BaseButton class="" :disabled="!hymnData" :title="playing ? 'Pausar música' : 'Reproducir música'" @click="togglePlayback">
+        <BaseButton :disabled="!hymnData" :title="playing ? 'Pausar música' : 'Reproducir música'" @click="togglePlayback">
           <i :class="playing ? 'pi pi-pause' : 'pi pi-play'" aria-hidden="true" />
         </BaseButton>
 <BaseButton :disabled="!connected || !store.onSearchHymnScene || store.autodriveVerses || (hymnData ? hymnIndex >= hymnData.sequence.length : true)" title="Verso siguiente" @click="hymnIndex++"><i class="pi pi-step-forward" aria-hidden="true" /></BaseButton>

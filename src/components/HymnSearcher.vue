@@ -44,7 +44,7 @@ function submit() {
     <AutoComplete ref="searcher" v-model="query" :suggestions="suggestions" :option-label="label"
       :delay="0" :min-length="0" complete-on-focus :auto-option-focus="false" append-to="body"
       aria-label="Buscar himno por número o título" placeholder="Número o título del himno"
-      fluid size="small" input-class="hymnal-search w-full"
+      fluid size="small" input-class="w-full"
       scroll-height="min(160px,50dvh)" empty-search-message="No se encontraron himnos"
       :pt="{ pcInputText: { root: { 'data-test': 'search-hymn' } } }"
       @complete="complete" @option-select="choose($event.value)">

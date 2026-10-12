@@ -53,6 +53,30 @@ export default definePreset(Aura, {
     list: { option: { focusBackground: color('hover') } },
     overlay: { select: overlay, popover: overlay, modal: overlay },
   },
+  // App-wide defaults and responsive control sizing belong to the PrimeVue preset.
+  extend: {
+    app: { controlSize: '32px', touchTarget: '44px' },
+  },
+  css: (options) => {
+    if (!options) return ''
+    const { dt } = options
+    return `
+    body {
+      margin: 0;
+      font-family: ${dt('typography.font.family')};
+      font-size: ${dt('typography.font.size')};
+      color: ${dt('text.color')};
+      background: ${dt('content.background')};
+    }
+    .p-button { min-width: ${dt('app.control.size')}; min-height: ${dt('app.control.size')}; }
+    @media (pointer: coarse), (max-width: 480px) and (min-height: 500px) {
+      .p-button, .p-inputtext, .p-select, .p-autocomplete-option, .p-select-option {
+        min-height: ${dt('app.touch.target')};
+      }
+      .p-button { min-width: ${dt('app.touch.target')}; }
+    }
+  `
+  },
   components: {
     button: {
       root: {
