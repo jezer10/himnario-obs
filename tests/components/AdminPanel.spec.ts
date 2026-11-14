@@ -3,6 +3,8 @@ import { VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import AdminPanel from '../../src/components/AdminPanel.vue'
 import sHymn from '../../src/services/HymnService'
 import OBSWebSocket from 'obs-websocket-js'
+import { usePlaylistsStore } from '../../src/playlists'
+import { useSettingsStore } from '../../src/store'
 
 vi.spyOn(sHymn, 'all').mockResolvedValue([])
 vi.spyOn(sHymn, 'byNumber').mockResolvedValue({
@@ -56,6 +58,62 @@ describe("AdminPanel component", () => {
     expect(sourceAudio.attributes('src')).toContain('025%20-%20Siento%20la%20presencia%20del%20Senor.mp3')
   })
 
+  it('loads playlist entries paused and advances only on request', async () => {
+    const playlists = usePlaylistsStore()
+    const id = playlists.create('Culto sábado')!
+    playlists.add(id, { number: 25, title: 'Primer himno' })
+    playlists.add(id, { number: 26, title: 'Segundo himno' })
+    useSettingsStore().autoplayMusic = true
+    const play = vi.spyOn(wrapper.get('audio').element as HTMLAudioElement, 'play')
+    await wrapper.get('[title="Playlists"]').trigger('click')
+    await wrapper.get('[aria-label="Cargar himno 25: Primer himno"]').trigger('click')
+    await flushPromises()
+    expect(play).not.toHaveBeenCalled()
+    expect(wrapper.get('.playlist-navigation').text()).toContain('1/2')
+    await wrapper.get('audio').trigger('ended')
+    await flushPromises()
+    expect(wrapper.get('.playlist-navigation').text()).toContain('1/2')
+    vi.mocked(sHymn.byNumber).mockRejectedValueOnce(new Error('offline'))
+    await wrapper.get('[title="Siguiente himno"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('.playlist-navigation').text()).toContain('1/2')
+    await wrapper.get('[title="Siguiente himno"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('.playlist-navigation').text()).toContain('2/2')
+    expect(wrapper.get('[title="Siguiente himno"]').attributes('disabled')).toBeDefined()
+    expect(play).not.toHaveBeenCalled()
+  })
+
+  it('seeks to a clicked verse and continues automatic lyric synchronization', async () => {
+    vi.mocked(sHymn.byNumber).mockResolvedValueOnce({
+      id: 1, number: 1, title: 'Prueba', mp3Url: '', mp3UrlInstr: '', mp3Filename: '1.mp3',
+      verses: [
+        { id: 1, number: 1, contents: [{ id: 1, content: 'Primera estrofa' }] },
+        { id: 2, number: 2, contents: [{ id: 2, content: 'Segunda estrofa' }] },
+      ],
+      sequence: [
+        { id: 1, timestamp: 1, verseId: 1, verseContentId: 1 },
+        { id: 2, timestamp: 20, verseId: 2, verseContentId: 2 },
+      ],
+    })
+    await wrapper.get('[role="combobox"]').setValue('1')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    const store = useSettingsStore()
+    store.autodriveVerses = false
+    await wrapper.findAll('button.lyric-line')[1]!.trigger('click')
+    await flushPromises()
+    expect(wrapper.get('.active-verse').text()).toBe('Segunda estrofa')
+    expect(store.autodriveVerses).toBe(true)
+    expect(wrapper.get('audio').element.currentTime).toBe(20)
+    expect(OBSWebSocket.prototype.call).toHaveBeenCalledWith('SetInputSettings', {
+      inputName: 'verso_contenido', inputSettings: { text: 'Segunda estrofa' },
+    })
+    wrapper.get('audio').element.currentTime = 2
+    await wrapper.get('audio').trigger('timeupdate')
+    await flushPromises()
+    expect(wrapper.get('.active-verse').text()).toBe('Primera estrofa')
+  })
   it('seeks, adjusts volume and toggles mute through custom controls', async () => {
     const audio = wrapper.get('audio')
     const element = audio.element as HTMLAudioElement

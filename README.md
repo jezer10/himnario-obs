@@ -15,6 +15,21 @@ Consulta la [configuración oficial](https://primevue.dev/configuration/).
 
 Validación: pnpm build y pnpm test.
 
+## Playlists locales
+
+Abre **Playlists** desde la cabecera para crear una lista, agregar himnos por número
+o título, renombrarla y cambiar su orden con las flechas. Seleccionar un resultado
+del buscador de la playlist solo lo agrega; no cambia el himno del reproductor.
+
+Pulsa un himno de la lista para cargarlo en pausa y usa **Reproducir** cuando estés
+listo. **Siguiente himno** carga manualmente el siguiente, también en pausa, incluso
+si la reproducción automática de las búsquedas está activada. Al terminar el audio
+se conserva el comportamiento de escenas de OBS; la playlist no avanza sola.
+
+Las listas se guardan en el almacenamiento local del navegador o panel de OBS.
+No se sincronizan entre dispositivos y se pierden al borrar los datos del sitio.
+Las letras y el audio siguen necesitando acceso a sus servidores.
+
 ## Componentes web con estilo OBS
 
 La [colección OBS UI](../obs-ui-web/README.md) vive en el proyecto hermano

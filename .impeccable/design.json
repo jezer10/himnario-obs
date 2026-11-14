@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "title": "Design System: Himnario Adventista Broadcast",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Azul de acción"
+      },
+      "dark-base": {
+        "role": "neutral",
+        "displayName": "Negro del reproductor"
+      },
+      "dark-control": {
+        "role": "neutral",
+        "displayName": "Carbón de control"
+      },
+      "dark-text": {
+        "role": "neutral",
+        "displayName": "Blanco suave"
+      },
+      "light-base": {
+        "role": "neutral",
+        "displayName": "Base clara OBS"
+      },
+      "connected": {
+        "role": "status",
+        "displayName": "Conexión OBS"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Letra activa",
+        "purpose": "Estrofa seleccionada; conserva saltos de línea."
+      },
+      "neighbor": {
+        "displayName": "Versos vecinos",
+        "purpose": "Contexto de lectura del mismo tamaño, con peso y contraste atenuados."
+      },
+      "title": {
+        "displayName": "Título del himno",
+        "purpose": "Identificación antes de la letra."
+      }
+    },
+    "shadows": [
+      {
+        "name": "form-field",
+        "value": "none",
+        "purpose": "Campos planos en el preset."
+      },
+      {
+        "name": "secondary-focus",
+        "value": "none",
+        "purpose": "El foco se expresa mediante anillo o contorno."
+      },
+      {
+        "name": "overlay",
+        "value": "0 12px 32px rgb(0 0 0 / .18)",
+        "purpose": "Elevación estructural de diálogos, popovers y desplegables; el panel principal permanece plano."
+      }
+    ],
+    "motion": [
+      {
+        "name": "theme-transition",
+        "value": "0.12s",
+        "purpose": "Duración de transición del preset PrimeVue."
+      },
+      {
+        "name": "verse-scroll",
+        "value": "560ms ease-out-quart; emphasis 400ms ease-out",
+        "purpose": "Lista estable; scroll al centro interrumpible desde la posición actual. Centrado inmediato con prefers-reduced-motion: reduce."
+      },
+      {
+        "name": "timeline-handle",
+        "value": "140ms ease-out",
+        "purpose": "Asa invisible en reposo; aparece con hover, focus-within o active. Sin transición con movimiento reducido."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow-deck",
+        "value": "(max-width: 380px)"
+      },
+      {
+        "name": "short-deck",
+        "value": "(max-height: 460px)"
+      },
+      {
+        "name": "touch-controls",
+        "value": "(pointer: coarse), (max-width: 480px) and (min-height: 500px)"
+      }
+    ],
+    "masks": [
+      {
+        "name": "lyrics-viewport",
+        "value": "linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent)",
+        "purpose": "Desvanecer extremos del viewport; negro es alfa opaca, no pintura."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Reproducir",
+      "kind": "button",
+      "refersTo": "playback-dark",
+      "description": "Cápsula neutra central de reproducción, vinculada al tema activo.",
+      "html": "<button class=\"play\" type=\"button\"><span aria-hidden=\"true\">▶</span><span>Reproducir</span></button>",
+      "css": ".play{display:flex;align-items:center;justify-content:center;gap:10px;min-width:134px;min-height:54px;padding:12px 20px;border:0;border-radius:999px;background:var(--p-button-secondary-background,#303134);color:var(--p-text-color,#f5f5f5);font:500 16px Manrope,'Segoe UI',sans-serif;cursor:pointer}.play:hover{background:var(--p-content-hover-background,#3d3e42)}.play:focus-visible{outline:2px solid var(--p-text-color,#f5f5f5);outline-offset:3px}.play:disabled{opacity:.6;cursor:default}"
+    },
+    {
+      "name": "Búsqueda de himnos",
+      "kind": "input",
+      "refersTo": "search-dark",
+      "description": "Campo de búsqueda por número o título con foco visible.",
+      "html": "<input class=\"search\" aria-label=\"Buscar himno por número o título\" placeholder=\"Buscar himno\" />",
+      "css": ".search{box-sizing:border-box;width:100%;padding:10px 12px;border:1px solid var(--p-form-field-background,#191a1d);border-radius:12px;background:var(--p-form-field-background,#191a1d);color:var(--p-text-color,#f5f5f5);font:12px Manrope,'Segoe UI',sans-serif}.search::placeholder{color:var(--p-text-muted-color,#a4a4ab)}.search:hover{border-color:var(--p-content-border-color,#393a3e)}.search:focus-visible{outline:2px solid var(--p-text-color,#f5f5f5);outline-offset:3px}"
+    },
+    {
+      "name": "Capa auxiliar",
+      "kind": "card",
+      "description": "Superficie de diálogo/popover con Manrope, radio suave y sombra estructural.",
+      "html": "<section class=\"overlay\" aria-label=\"Ajustes\"><h2>Ajustes</h2><p>Configuración del himnario</p></section>",
+      "css": ".overlay{font-family:Manrope,\"Segoe UI\",sans-serif;border:1px solid var(--p-content-border-color,#393a3e);border-radius:16px;background:var(--p-content-background,#0c0d0f);color:var(--p-text-color,#f5f5f5);box-shadow:0 12px 32px rgb(0 0 0 / .18);padding:18px 20px}.overlay h2{margin:0 0 12px;font-size:18px;font-weight:600;letter-spacing:-.025em}.overlay p{font-size:13px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Reproductor limpio, letra protagonista",
+    "overview": "Superficie casi negra, Manrope y controles suaves según la referencia aprobada. La tipografía, el espacio y el contraste sostienen la jerarquía; la misma geometría se conserva en temas claros y sincronizados con OBS.",
+    "keyCharacteristics": [
+      "Neutros sobrios",
+      "Lectura dominante",
+      "Estados discretos",
+      "Controles reconocibles"
+    ],
+    "rules": [
+      {
+        "name": "Regla de sincronización",
+        "body": "Consumir roles PrimeVue; los colores recibidos de OBS tienen prioridad sobre el fallback manual.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Conservar jerarquía de la letra",
+      "Preservar foco visible y reducción de movimiento",
+      "Distribuir Manrope y su licencia localmente"
+    ],
+    "donts": [
+      "No confundir conexión OBS con emisión",
+      "No añadir acentos o sombras decorativas al panel aprobado",
+      "No fijar el modo oscuro sobre el tema sincronizado"
+    ]
+  }
+}
