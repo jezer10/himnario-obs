@@ -291,14 +291,14 @@ async function showVerse(index: number) {
         <span class="track-version">{{ hymnData ? 'Himno ' + String(hymnData.number).padStart(3, '0') : 'Himnario' }}</span>
         <h1 data-test="hymn-title" :title="hymnData?.title">{{ hymnData?.title || 'Elige un himno' }}</h1>
       </div>
+      <div v-if="!playlistsOpen && searchOpen" id="hymn-search" class="deck-search"><HymnSearcher @on-play-hymn="search" /></div>
       <div class="header-actions">
         <span class="obs-status" :class="{ 'is-connected': connected }" role="status" :title="connected ? 'OBS conectado' : 'OBS sin conexión'" :aria-label="connected ? 'OBS conectado' : 'OBS sin conexión'"><span class="status-dot" aria-hidden="true" /></span>
-        <BaseButton title="Buscar himno" :aria-expanded="!playlistsOpen && (searchOpen || !hymnData)" aria-controls="hymn-search" @click="searchOpen = playlistsOpen || !searchOpen; playlistsOpen = false"><i class="pi pi-search" aria-hidden="true" /></BaseButton>
+        <BaseButton title="Buscar himno" :aria-expanded="!playlistsOpen && searchOpen" aria-controls="hymn-search" @click="searchOpen = playlistsOpen || !searchOpen; playlistsOpen = false"><i class="pi pi-search" aria-hidden="true" /></BaseButton>
         <SettingsPanel />
         <BaseButton title="Playlists" :aria-pressed="playlistsOpen" aria-controls="playlists-view" @click="playlistsOpen = !playlistsOpen"><i :class="playlistsOpen ? 'pi pi-align-left' : 'pi pi-list'" aria-hidden="true" /></BaseButton>
       </div>
       <SetupScene />
-      <div v-if="!playlistsOpen && (searchOpen || !hymnData)" id="hymn-search" class="deck-search"><HymnSearcher @on-play-hymn="search" /></div>
       <span data-test="music-caption" class="sr-only" role="status">{{ !hymnData ? 'Sin selección' : playing ? 'Reproduciendo' : 'En pausa' }}</span>
     </header>
     <PlaylistPanel v-if="playlistsOpen" id="playlists-view" :active-entry-id="activeEntryId" :busy="playlistLoading" @select="selectPlaylistEntry" />
@@ -322,6 +322,7 @@ async function showVerse(index: number) {
         <span>{{ activePlaylist.name }} · {{ playlistIndex + 1 }}/{{ activePlaylist.entries.length }}</span>
         <BaseButton :disabled="playlistLoading || !nextPlaylistEntry" title="Siguiente himno" @click="nextPlaylistEntry && selectPlaylistEntry(activePlaylistId, nextPlaylistEntry)">{{ playlistLoading ? 'Cargando…' : nextPlaylistEntry ? 'Siguiente himno' : 'Fin de la playlist' }}<i class="pi pi-angle-right" aria-hidden="true" /></BaseButton>
       </div>
+      <div class="playback-controls">
       <div class="seek-row flex items-center gap-1.5 text-[11px] tabular-nums [&_svg]:size-[18px]    ">
         <InputSlider class="min-w-0 w-full flex-1 my-3 mx-2" label="Progreso del himno" :max="duration || 1" :step="0.1" :model-value="displayTime" :disabled="!duration" :value-text="formatTime(displayTime) + ' de ' + formatTime(duration)" @update:model-value="seek" @slidestart="startSeek" @slideend="commitSeek" @slidecancel="cancelSeek" />
         <div class="relative shrink-0 justify-self-end">
@@ -343,12 +344,13 @@ async function showVerse(index: number) {
 
         <div class="flex items-center gap-1.5   " :title="controlHint">
 <BaseButton :disabled="!connected || !store.onSearchHymnScene || store.autodriveVerses || hymnIndex < 2" title="Verso anterior" @click="hymnIndex--"><i class="pi pi-step-backward" aria-hidden="true" /></BaseButton>
-        <BaseButton class="play-button" :disabled="!hymnData" :title="playing ? 'Pausar música' : 'Reproducir música'" @click="togglePlayback">
+        <BaseButton class="play-button" :disabled="!hymnData" :aria-label="playing ? 'Pausar música' : 'Reproducir música'" :title="playing ? 'Pausar música' : 'Reproducir música'" @click="togglePlayback">
           <i :class="playing ? 'pi pi-pause' : 'pi pi-play'" aria-hidden="true" /><span>{{ playing ? 'Pausa' : 'Reproducir' }}</span>
         </BaseButton>
 <BaseButton :disabled="!connected || !store.onSearchHymnScene || store.autodriveVerses || (hymnData ? hymnIndex >= hymnData.sequence.length : true)" title="Verso siguiente" @click="hymnIndex++"><i class="pi pi-step-forward" aria-hidden="true" /></BaseButton>
         </div>
 
+      </div>
       </div>
       <Message v-if="audioError" class="mt-1 text-[11px] leading-[1.3] " role="alert" severity="error" :closable="false">{{ audioError }}</Message>
       <Message v-if="obsError" class="mt-1 text-[11px] leading-[1.3] " role="alert" severity="error" :closable="false">{{ obsError }}</Message>

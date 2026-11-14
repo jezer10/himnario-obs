@@ -16,7 +16,8 @@
   font-style: normal;
   font-display: swap;
 }
-body { font-family: Manrope, "Segoe UI", sans-serif; }
+html, body, #app { height: 100%; min-height: 0; }
+body { margin: 0; overflow: hidden; font-family: Manrope, "Segoe UI", sans-serif; }
 .music-deck {
   box-sizing: border-box;
   display: grid;
@@ -24,7 +25,8 @@ body { font-family: Manrope, "Segoe UI", sans-serif; }
   width: 100%;
   max-width: 560px;
   height: 100dvh;
-  min-height: 280px;
+  min-height: 0;
+  overflow: hidden;
   margin: auto;
   padding: clamp(16px, 5vw, 36px);
   gap: 20px;
@@ -39,7 +41,7 @@ body { font-family: Manrope, "Segoe UI", sans-serif; }
 .obs-status { display: flex; align-items: center; padding: 4px; color: var(--p-text-muted-color); }
 .status-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .is-connected .status-dot { background: #65be91; }
-.deck-search { flex-basis: 100%; min-width: 0; }
+.deck-search { order: 1; flex-basis: 100%; min-width: 0; }
 .deck-search .p-inputtext { padding: 10px 12px; font-size: 12px; border-radius: 12px; }
 .verse-preview { display: flex; min-height: 0; min-width: 0; overflow: hidden; overflow-wrap: anywhere; }
 .lyrics-scroll {
@@ -63,6 +65,7 @@ body { font-family: Manrope, "Segoe UI", sans-serif; }
 .preview-empty > p { color: var(--p-text-color); font-size: 22px; font-weight: 500; }
 .preview-empty > span { font-size: 13px; }
 .deck-player { min-width: 0; position: relative; }
+.playback-controls { position: relative; }
 .seek-row { display: flex; align-items: center; }
 .seek-row > .relative { position: absolute; right: 0; bottom: 12px; z-index: 1; }
 .seek-row .p-button { border: 0; background: transparent; border-radius: 50%; min-width: 28px; min-height: 32px; padding: 4px; }
@@ -88,14 +91,45 @@ body { font-family: Manrope, "Segoe UI", sans-serif; }
 }
 @media (max-height: 460px) {
   .music-deck { padding: 12px 16px; gap: 12px; }
+  .deck-header { align-items: center; }
+  .deck-header:has(.deck-search) .track-info { display: none; }
+  .deck-search { order: 0; flex: 1; }
+  .header-actions { flex-shrink: 0; }
   .track-version { font-size: 11px; }
-  .track-info h1 { font-size: 16px; }
+  .track-info h1 { font-size: 16px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
   .lyrics-scroll > .lyric-line { font-size: 18px; line-height: 1.5; }
   .lyrics-scroll > .lyric-line { margin-bottom: 14px; }
   .time-row { margin-bottom: 10px; font-size: 11px; }
   .transport-row .play-button { min-height: 44px; padding-block: 8px; }
   .seek-row > .relative { bottom: 6px; }
+}
+
+/* Keep the reading area dominant in short OBS docks. */
+@media (max-height: 400px) {
+  .music-deck { padding: 8px 12px; gap: 6px; }
+  .deck-header { align-items: center; gap: 6px; }
+  .track-info { display: flex; align-items: baseline; gap: 8px; }
+  .track-version { flex-shrink: 0; margin: 0; }
+  .track-info h1 { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; }
+  .deck-search .p-inputtext { padding-block: 6px; }
+  .playback-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto 28px; grid-template-rows: 20px 34px; gap: 0 8px; align-items: center; }
+  .seek-row { display: contents; }
+  .seek-row > .p-slider { grid-column: 1 / -1; grid-row: 1; }
+  .seek-row > .relative { position: static; grid-column: 3; grid-row: 2; }
+  .transport-row { grid-column: 2; grid-row: 2; padding: 0; }
+  .transport-row > div { gap: 4px; }
+  .transport-row .p-button { min-height: 32px; }
+  .transport-row .play-button { min-height: 34px; min-width: 100px; padding: 5px 10px; font-size: 13px; }
+  .time-row { grid-column: 1; grid-row: 2; justify-content: start; gap: 4px; margin: 0; font-size: 10px; }
+  .time-row > span + span::before { content: '/'; margin-right: 4px; }
+  .lyrics-scroll { mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent); }
+  .playlist-navigation { margin-bottom: 4px; }
+  .playlist-navigation > span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+}
+@media (max-height: 400px) and (max-width: 380px) {
+  .transport-row .play-button { min-width: 34px; width: 34px; padding: 5px; }
+  .transport-row .play-button > span { display: none; }
 }
 
 /* A quiet timeline at rest; the handle remains keyboard and touch accessible. */
@@ -184,4 +218,5 @@ body { font-family: Manrope, "Segoe UI", sans-serif; }
 @media (pointer: coarse), (max-width: 480px) and (min-height: 500px) {
   .playlist-entry-actions .p-button { min-height: 44px; min-width: 44px; }
 }
+
 
