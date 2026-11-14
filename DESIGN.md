@@ -139,7 +139,7 @@ Origen del archivo incorporado: https://raw.githubusercontent.com/google/fonts/m
 
 ## Layout
 
-El panel usa una columna centrada de hasta 560 px y altura de viewport dinámica, con mínimo de 280 px. Tres filas sitúan cabecera, área flexible de lectura y controles. La letra tiene desplazamiento propio y conserva saltos de línea; las palabras largas pueden partirse.
+El panel usa una columna centrada de hasta 560 px y altura de viewport dinámica, sin mínimo que fuerce desbordamiento de la página. Tres filas sitúan cabecera, área flexible de lectura y controles. La letra tiene desplazamiento propio y conserva saltos de línea; las palabras largas pueden partirse. Hasta 400 px de altura, la cabecera muestra número y título en una fila con elipsis, el buscador sustituye temporalmente el título en esa misma fila, y se reducen rellenos y separaciones. Bajo la barra de progreso, tiempos, transporte y volumen comparten una fila de 34 px. Hasta 380 px de ancho, reproducir/pausar usa solo el icono con nombre accesible. La letra conserva 18 px y recibe el espacio restante; el panel completo no se desplaza.
 
 El ancho de hasta 380 px reduce relleno y separaciones. La altura de hasta 460 px compacta título y transporte, mantiene los versos vecinos y reduce la letra a 18 px con interlineado de 1.5. Los controles táctiles generales tienen objetivo mínimo de 44 px con puntero grueso o ancho de hasta 480 px y altura de al menos 500 px. Conservar esta adaptación al ampliar el sistema; no trasladar todas las medidas del panel a diálogos y ajustes.
 
@@ -191,3 +191,8 @@ En el viewport de letra el contorno se coloca dentro con separación de −3 px.
 
 
 Tanto los clics en versos como el avance automático animan el centrado durante 560 ms, por preferencia explícita del usuario, incluso con movimiento reducido. Volumen y progreso comparten línea de 4 px y asa de 10 px, oculta en reposo y visible con hover, foco o arrastre.
+
+
+## Icono de aplicación y PWA
+
+El icono original representa un libro abierto con dos notas musicales, fondo azul primario #284cb8 y figura #f5f5f5. La fuente vectorial es public/favicon.svg; scripts/generate-icons.mjs produce los PNG de 192, 512 y 180 px, además de la variante maskable con margen seguro. No incorpora recursos de terceros. Configuración contiene instalación y descargas offline con controles existentes, progreso textual y confirmación explícita; se verificó en Chrome a 390 × 844 px junto con la lectura sin conexión.

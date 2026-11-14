@@ -37,6 +37,8 @@ describe("AdminPanel component", () => {
   })
 
   it('searches a hymn', async () => {
+    expect(wrapper.find('[role="combobox"]').exists()).toBe(false)
+    await wrapper.get('[title="Buscar himno"]').trigger('click')
     const numberInput = wrapper.get('[role="combobox"]')
 
 
@@ -47,6 +49,7 @@ describe("AdminPanel component", () => {
     const hymnTitle = wrapper.get('[data-test="hymn-title"]')
 
     expect(hymnTitle.text()).toContain('Siento la presencia del Señor')
+    expect(wrapper.find('[role="combobox"]').exists()).toBe(false)
 
     expect(wrapper.get('[data-test="music-caption"]').text()).toContain('En pausa')
     await wrapper.get('audio').trigger('play')
@@ -97,6 +100,7 @@ describe("AdminPanel component", () => {
         { id: 2, timestamp: 20, verseId: 2, verseContentId: 2 },
       ],
     })
+    await wrapper.get('[title="Buscar himno"]').trigger('click')
     await wrapper.get('[role="combobox"]').setValue('1')
     await wrapper.get('form').trigger('submit')
     await flushPromises()
@@ -164,6 +168,7 @@ describe("AdminPanel component", () => {
   })
 
   it('reports playback failures without claiming music is playing', async () => {
+    await wrapper.get('[title="Buscar himno"]').trigger('click')
     await wrapper.get('[role="combobox"]').setValue('25')
     await wrapper.get('form').trigger('submit')
     await flushPromises()
@@ -206,6 +211,8 @@ describe("AdminPanel component", () => {
   })
 
   it.skip('enables/disables controls when connected/disconnected', async () => {
+    expect(wrapper.find('[role="combobox"]').exists()).toBe(false)
+    await wrapper.get('[title="Buscar himno"]').trigger('click')
     const numberInput = wrapper.get('[role="combobox"]')
 
     const startButton = wrapper.get('[title="Principio"]')

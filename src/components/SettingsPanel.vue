@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AboutApp from './AboutApp.vue'
+import OfflineSettings from './OfflineSettings.vue'
 import { computed, ref } from 'vue'
 import { themeMode, obsThemeStatus } from '../theme'
 import { useObs } from '../composables/obs'
@@ -45,6 +46,7 @@ async function closeDialog() {
   </BaseButton>
   <BasicDialog ref="dialog" title="Configuración" compact-header data-test="settings">
     <div class="text-sm space-y-4">
+      <OfflineSettings />
       <div class="mb-2">
         <h3 class="font-bold">Al buscar:</h3>
         <InputSwitch v-model="store.onlyInstrumental" id="oi">Solo instrumental</InputSwitch>

@@ -1,5 +1,11 @@
 # Himnario Adventista Broadcast
 
+## Instalar como PWA y usar sin conexión
+
+La versión de producción incluye icono e instalación como aplicación. En **Configuración → Instalación y uso sin conexión** puedes descargar todas las letras y guardar el audio cantado e instrumental de cada himno que necesites. Espera la confirmación antes de desconectarte.
+
+Consulta la [guía de instalación y uso offline](docs/pwa.md) para instalación, requisitos y pruebas.
+
 ## Interfaz con PrimeVue 5
 
 La aplicación usa PrimeVue 5 con el tema oficial Aura y PrimeIcons. El modo claro/oscuro puede

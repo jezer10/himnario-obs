@@ -7,6 +7,7 @@ import { createAppPinia } from './pinia'
 import { initializeTheme } from './theme'
 import 'primeicons/primeicons.css'
 import './styles/main.css'
+import './pwa'
 
 const app = createApp(App)
 app.use(createAppPinia())
