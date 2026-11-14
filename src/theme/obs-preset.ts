@@ -3,7 +3,7 @@ import Aura from '@primeuix/themes/aura'
 import palettes from './obs-palettes.json'
 
 const light = palettes['com.obsproject.Yami.Light'].colors
-const dark = palettes['com.obsproject.Yami'].colors
+const dark = { ...palettes['com.obsproject.Yami'].colors, base: '#0c0d0f', control: '#303134', input: '#191a1d', hover: '#3d3e42', pressed: '#232427', border: '#393a3e', text: '#f5f5f5', muted: '#a4a4ab', focus: '#dedee2', selection: '#424348' }
 
 // The OBS bridge can override each color; manual modes use Yami / Light.
 const color = (key: keyof typeof dark) =>
@@ -20,7 +20,7 @@ export default definePreset(Aura, {
     borderRadius: { xs: '2px', sm: '3px', md: '4px', lg: '4px', xl: '6px' },
   },
   semantic: {
-    typography: { fontFamily: '"Segoe UI", system-ui, sans-serif', fontSize: '13px' },
+    typography: { fontFamily: 'Manrope, "Segoe UI", system-ui, sans-serif', fontSize: '13px' },
     transitionDuration: '0.12s',
     primary: {
       50: '{blue.50}', 100: '{blue.100}', 200: '{blue.200}',

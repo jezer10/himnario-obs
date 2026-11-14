@@ -123,7 +123,8 @@ async function createSceneAndSources() {
           <span class="ms-auto opacity-60">Texto</span>
         </div>
       </div>
-      <p v-if="!sceneStatus.scene || Object.values(sceneStatus.source).some(v => !v)" class="pt-1 pb-2">⚠️ Se encontraron recursos faltantes</p>
+      <p v-if="!sceneStatus.scene" class="pt-1 pb-2">La escena «{{ store.onSearchHymnScene }}» no existe en OBS. Selecciona tu escena en Configuración o créala aquí.</p>
+      <p v-else-if="Object.values(sceneStatus.source).some(v => !v)" class="pt-1 pb-2">Faltan fuentes de texto en esta escena. Puedes crearlas aquí.</p>
       <p v-else class="pt-1">✅ Todos los recursos están listos</p>
     </div>
     <template v-slot:footer>
