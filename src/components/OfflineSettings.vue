@@ -42,24 +42,41 @@ async function download(audio: boolean) {
           // The default music host serves playable media without CORS headers.
           response = await fetch(url, { mode: 'no-cors', signal: AbortSignal.timeout(180_000) })
         }
-        if (response.type !== 'opaque' && response.status !== 200) throw new Error('No se pudo descargar el audio completo.')
+        if (response.type !== 'opaque' && response.status !== 200)
+          throw new Error('No se pudo descargar el audio completo.')
         await audioCache.put(url, response)
         // Opaque responses hide HTTP errors. Verify the saved media is playable.
         if (response.type === 'opaque') {
           const probe = new Audio()
           try {
             await new Promise<void>((resolve, reject) => {
-              const timeout = window.setTimeout(() => { cleanup(); reject(new Error('No se pudo verificar el audio.')) }, 30_000)
-              const cleanup = () => { clearTimeout(timeout); probe.onloadeddata = null; probe.onerror = null }
-              probe.onloadeddata = () => { cleanup(); resolve() }
-              probe.onerror = () => { cleanup(); reject(new Error('El archivo descargado no se puede reproducir.')) }
+              const timeout = window.setTimeout(() => {
+                cleanup()
+                reject(new Error('No se pudo verificar el audio.'))
+              }, 30_000)
+              const cleanup = () => {
+                clearTimeout(timeout)
+                probe.onloadeddata = null
+                probe.onerror = null
+              }
+              probe.onloadeddata = () => {
+                cleanup()
+                resolve()
+              }
+              probe.onerror = () => {
+                cleanup()
+                reject(new Error('El archivo descargado no se puede reproducir.'))
+              }
               probe.preload = 'auto'
               probe.src = url
             })
           } catch (error) {
             await audioCache.delete(url)
             throw error
-          } finally { probe.removeAttribute('src'); probe.load() }
+          } finally {
+            probe.removeAttribute('src')
+            probe.load()
+          }
         }
       }
       message.value = `Himno ${n} guardado con letra y audio cantado e instrumental.`
@@ -77,23 +94,51 @@ async function download(audio: boolean) {
     await navigator.storage?.persist?.().catch(() => false)
   } catch (error) {
     message.value = `${error instanceof Error ? error.message : 'No se pudo completar la descarga.'} Puedes reintentar; las descargas terminadas se conservan.`
-  } finally { busy.value = false }
+  } finally {
+    busy.value = false
+  }
 }
 </script>
 
 <template>
   <section class="flex flex-col gap-2" aria-labelledby="offline-title">
     <h3 id="offline-title" class="font-bold">Instalación y uso sin conexión</h3>
-    <BaseButton v-if="installPrompt" title="Instalar Himnario" @click="install">Instalar Himnario</BaseButton>
-    <p class="text-xs text-obs-muted">Para instalar, usa «Instalar aplicación» en el menú del navegador. En iPhone o iPad: Compartir → Añadir a pantalla de inicio.</p>
-    <p v-if="!supported" role="status" class="text-xs">Abre la app mediante HTTPS o localhost en un navegador compatible para activar las descargas.</p>
+    <BaseButton v-if="installPrompt" title="Instalar Himnario" @click="install"
+      >Instalar Himnario</BaseButton
+    >
+    <p class="text-xs text-obs-muted">
+      Para instalar, usa «Instalar aplicación» en el menú del navegador. En iPhone o iPad: Compartir
+      → Añadir a pantalla de inicio.
+    </p>
+    <p v-if="!supported" role="status" class="text-xs">
+      Abre la app mediante HTTPS o localhost en un navegador compatible para activar las descargas.
+    </p>
     <template v-else>
-      <p class="text-xs text-obs-muted">Descarga las letras antes de desconectarte. El audio se guarda por himno; OBS necesita seguir accesible en tu equipo o red local.</p>
-      <BaseButton :disabled="busy" title="Descargar todas las letras" @click="download(false)">Descargar todas las letras</BaseButton>
+      <p class="text-xs text-obs-muted">
+        Descarga las letras antes de desconectarte. El audio se guarda por himno; OBS necesita
+        seguir accesible en tu equipo o red local.
+      </p>
+      <BaseButton :disabled="busy" title="Descargar todas las letras" @click="download(false)"
+        >Descargar todas las letras</BaseButton
+      >
       <label for="offline-hymn">Himno para guardar con audio</label>
-      <InputText id="offline-hymn" v-model="number" inputmode="numeric" placeholder="Número de himno" :disabled="busy" />
-      <BaseButton :disabled="busy || !number.trim()" title="Descargar himno con audio" @click="download(true)">Descargar himno con audio</BaseButton>
-      <p class="text-xs text-obs-muted">Espera a que termine la descarga. Los archivos se guardan en este navegador; borrar sus datos elimina las descargas.</p>
+      <InputText
+        id="offline-hymn"
+        v-model="number"
+        inputmode="numeric"
+        placeholder="Número de himno"
+        :disabled="busy"
+      />
+      <BaseButton
+        :disabled="busy || !number.trim()"
+        title="Descargar himno con audio"
+        @click="download(true)"
+        >Descargar himno con audio</BaseButton
+      >
+      <p class="text-xs text-obs-muted">
+        Espera a que termine la descarga. Los archivos se guardan en este navegador; borrar sus
+        datos elimina las descargas.
+      </p>
       <p role="status" aria-live="polite" class="text-xs">{{ message }}</p>
     </template>
   </section>

@@ -25,7 +25,7 @@ export function usePlayer() {
   }
   onBeforeUnmount(() => {
     stopFrames()
-    cleanup.forEach(remove => remove())
+    cleanup.forEach((remove) => remove())
   })
 
   function load() {
@@ -75,7 +75,10 @@ export function usePlayer() {
   function onTimeUpdate(callback: () => void) {
     const audio = player.value
     if (!audio) return
-    const update = () => { syncTime(); callback() }
+    const update = () => {
+      syncTime()
+      callback()
+    }
     const listeners: [string, EventListener][] = [
       ['timeupdate', update],
       ['playing', startFrames],
@@ -87,7 +90,9 @@ export function usePlayer() {
       ['seeked', syncTime],
     ]
     listeners.forEach(([event, handler]) => audio.addEventListener(event, handler))
-    cleanup.push(() => listeners.forEach(([event, handler]) => audio.removeEventListener(event, handler)))
+    cleanup.push(() =>
+      listeners.forEach(([event, handler]) => audio.removeEventListener(event, handler)),
+    )
     if (!audio.paused && !audio.ended) startFrames()
   }
 

@@ -1,34 +1,37 @@
 {
   "name": "himnario-adventista-broadcast",
-  "private": true,
   "version": "3.0.2",
+  "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "dev": "vp dev",
+    "build": "vue-tsc -b && vp build",
+    "preview": "vp preview",
+    "test": "vp test run",
+    "test:watch": "vp test",
     "test:pwa": "node scripts/test-pwa.mjs",
     "icons": "node scripts/generate-icons.mjs",
-    "lint": "biome check",
-    "lint:fix": "biome check --fix"
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "fmt": "vp fmt",
+    "fmt:check": "vp fmt --check",
+    "typecheck": "vue-tsc -b",
+    "check": "vp check && vue-tsc -b"
   },
   "dependencies": {
     "@pinia/colada": "^1.4.8",
     "@primeuix/themes": "^3.0.1",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.1.0",
     "obs-websocket-js": "^5.0.8",
     "pinia": "^4.0.3",
     "pinia-plugin-persistedstate": "^4.7.1",
     "primeicons": "^8.0.2",
     "primevue": "^5.0.2",
     "vue": "^3.5.42",
-    "vue-router": "^5.5.1",
-    "@vercel/speed-insights": "^2.1.0"
+    "vue-router": "^5.5.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
     "@playwright/test": "^1.65.1",
     "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.3.3",
@@ -39,13 +42,16 @@
     "happy-dom": "^20.14.6",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
-    "vite": "^8.3.0",
+    "vite": "catalog:",
     "vite-plugin-pwa": "^2.0.0",
-    "vitest": "^5.0.3",
+    "vite-plus": "catalog:",
     "vue-tsc": "^3.3.11",
     "workbox-precaching": "^7.4.1",
     "workbox-range-requests": "^7.4.1",
     "workbox-routing": "^7.4.1"
+  },
+  "engines": {
+    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
   },
   "packageManager": "pnpm@12.10.1"
 }

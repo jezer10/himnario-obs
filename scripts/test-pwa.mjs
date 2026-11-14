@@ -35,17 +35,9 @@ audio.writeUInt16LE(16, 34)
 audio.write('data', 36)
 audio.writeUInt32LE(16000, 40)
 const server = createServer((req, res) => {
-  if (!req.url.startsWith('/instrumental/'))
-    res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader(
-    'Content-Type',
-    req.url.includes('.mp3') ? 'audio/wav' : 'application/json',
-  )
-  res.end(
-    req.url.includes('.mp3')
-      ? audio
-      : JSON.stringify(req.url === '/hymn' ? [hymn] : hymn),
-  )
+  if (!req.url.startsWith('/instrumental/')) res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Content-Type', req.url.includes('.mp3') ? 'audio/wav' : 'application/json')
+  res.end(req.url.includes('.mp3') ? audio : JSON.stringify(req.url === '/hymn' ? [hymn] : hymn))
 })
 await new Promise((resolve) => server.listen(4174, '127.0.0.1', resolve))
 const browser = await chromium.launch(
@@ -64,12 +56,8 @@ try {
         version: '3.0.2',
         theme: 'dark',
         obsWebsocketUrl: 'localhost:1',
-        hymnalApiUrl: live
-          ? 'https://himnario-api.qhar.in'
-          : 'http://127.0.0.1:4174',
-        musicHostUrl: live
-          ? 'https://himnario-music.qhar.in'
-          : 'http://127.0.0.1:4174',
+        hymnalApiUrl: live ? 'https://himnario-api.qhar.in' : 'http://127.0.0.1:4174',
+        musicHostUrl: live ? 'https://himnario-music.qhar.in' : 'http://127.0.0.1:4174',
       }),
     )
   }, live)
@@ -79,10 +67,7 @@ try {
   await page.reload()
   await page.waitForFunction(() => !!navigator.serviceWorker.controller)
   if (await page.getByRole('dialog').count())
-    await page
-      .getByRole('button', { name: 'Cerrar', exact: true })
-      .last()
-      .click()
+    await page.getByRole('button', { name: 'Cerrar', exact: true }).last().click()
   const manifest = await page.evaluate(async () =>
     (await fetch(document.querySelector('link[rel="manifest"]').href)).json(),
   )
@@ -90,19 +75,11 @@ try {
   assert.equal(manifest.icons.length, 3)
   await page.getByRole('button', { name: 'Configuración', exact: true }).click()
   if (!live) {
-    await page
-      .getByRole('button', { name: 'Descargar todas las letras', exact: true })
-      .click()
-    await page
-      .getByText('1 himnos guardados para buscar y leer sin conexión.')
-      .waitFor()
+    await page.getByRole('button', { name: 'Descargar todas las letras', exact: true }).click()
+    await page.getByText('1 himnos guardados para buscar y leer sin conexión.').waitFor()
   }
-  await page
-    .getByLabel('Himno para guardar con audio', { exact: true })
-    .fill('1')
-  await page
-    .getByRole('button', { name: 'Descargar himno con audio', exact: true })
-    .click()
+  await page.getByLabel('Himno para guardar con audio', { exact: true }).fill('1')
+  await page.getByRole('button', { name: 'Descargar himno con audio', exact: true }).click()
   await page
     .getByText('Himno 1 guardado con letra y audio cantado e instrumental.')
     .waitFor({ timeout: 180_000 })
@@ -111,13 +88,8 @@ try {
   await context.setOffline(true)
   await page.reload()
   if (await page.getByRole('dialog').count())
-    await page
-      .getByRole('button', { name: 'Cerrar', exact: true })
-      .last()
-      .click()
-  await page
-    .getByRole('button', { name: 'Configuración', exact: true })
-    .waitFor()
+    await page.getByRole('button', { name: 'Cerrar', exact: true }).last().click()
+  await page.getByRole('button', { name: 'Configuración', exact: true }).waitFor()
   if (!live) {
     const range = await page.evaluate(async () => {
       const response = await fetch('http://127.0.0.1:4174/vocal/1.mp3', {
@@ -145,17 +117,12 @@ try {
   await page.getByRole('combobox').press('Enter')
   if (live) {
     await page.getByRole('heading', { name: /Cantad alegres/i }).waitFor()
-    await page
-      .getByRole('button', { name: 'Reproducir música', exact: true })
-      .click()
+    await page.getByRole('button', { name: 'Reproducir música', exact: true }).click()
     await page.waitForFunction(() => {
       const audio = document.querySelector('audio')
       return audio && audio.currentTime > 0 && !audio.paused
     })
-  } else
-    await page
-      .getByText('Letra disponible sin conexión', { exact: true })
-      .waitFor()
+  } else await page.getByText('Letra disponible sin conexión', { exact: true }).waitFor()
   await page.screenshot({ path: 'node_modules/.tmp/pwa-offline.png' })
   console.log(
     live

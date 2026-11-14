@@ -1,12 +1,18 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { useHymn } from '../src/composables/hymn'
 import type { HymnSequence } from '../src/models/hymn'
 import sHymn from '../src/services/HymnService'
 import { useSettingsStore } from '../src/store'
 
 const hymn = (number: number): HymnSequence => ({
-  id: number, number, title: `Himno ${number}`, mp3Filename: `${number}.mp3`,
-  mp3Url: '', mp3UrlInstr: '', verses: [], sequence: [],
+  id: number,
+  number,
+  title: `Himno ${number}`,
+  mp3Filename: `${number}.mp3`,
+  mp3Url: '',
+  mp3UrlInstr: '',
+  verses: [],
+  sequence: [],
 })
 
 afterEach(() => vi.restoreAllMocks())
@@ -27,7 +33,12 @@ describe('hymn query cache', () => {
   it('keeps the latest selection when earlier requests finish late', async () => {
     let finish!: (data: HymnSequence) => void
     vi.spyOn(sHymn, 'byNumber')
-      .mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            finish = resolve
+          }),
+      )
       .mockResolvedValueOnce(hymn(2))
     const { searchHymn, hymnData } = useHymn()
     const earlier = searchHymn(1)

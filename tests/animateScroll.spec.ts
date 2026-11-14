@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { animateScroll } from '../src/utils/animateScroll'
 
 afterEach(() => vi.restoreAllMocks())
@@ -7,7 +7,10 @@ describe('lyric scroll motion', () => {
   it('moves through intermediate positions, eases toward the center and finishes exactly', () => {
     let tick: FrameRequestCallback = () => {}
     vi.spyOn(performance, 'now').mockReturnValue(0)
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { tick = callback; return 1 })
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      tick = callback
+      return 1
+    })
     const viewport = document.createElement('div')
     viewport.scrollTop = 20
     animateScroll(viewport, 220)
@@ -28,7 +31,10 @@ describe('lyric scroll motion', () => {
   it('cancels without snapping and reverses from the current position', () => {
     let tick: FrameRequestCallback = () => {}
     vi.spyOn(performance, 'now').mockReturnValue(0)
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { tick = callback; return 7 })
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      tick = callback
+      return 7
+    })
     const cancel = vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {})
     const viewport = document.createElement('div')
     const stop = animateScroll(viewport, 300)

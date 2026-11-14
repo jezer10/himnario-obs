@@ -47,3 +47,4 @@ __screenshots__/
 .env
 .env.*
 !.env.example
+.vitest/

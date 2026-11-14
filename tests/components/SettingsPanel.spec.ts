@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vite-plus/test'
 import { VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import SettingsPanel from '../../src/components/SettingsPanel.vue'
 
-describe("AdminPanel component", () => {
+describe('AdminPanel component', () => {
   let wrapper: VueWrapper
 
   beforeEach(async () => {
@@ -45,7 +45,9 @@ describe("AdminPanel component", () => {
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(JSON.parse(localStorage.getItem('himnario-settings')!).onSearchSwitchToHymnScene).toBe(true)
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).onSearchSwitchToHymnScene).toBe(
+      true,
+    )
   })
 
   it.skip('set hymn scene', async () => {
@@ -63,7 +65,9 @@ describe("AdminPanel component", () => {
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(JSON.parse(localStorage.getItem('himnario-settings')!).onMusicEndSwitchToScene).toBe('Scene')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).onMusicEndSwitchToScene).toBe(
+      'Scene',
+    )
   })
 
   it('set OBS websocket url', async () => {
@@ -72,7 +76,9 @@ describe("AdminPanel component", () => {
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(JSON.parse(localStorage.getItem('himnario-settings')!).obsWebsocketUrl).toBe('localhost:4455')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).obsWebsocketUrl).toBe(
+      'localhost:4455',
+    )
   })
 
   it('set music host url', async () => {
@@ -90,6 +96,8 @@ describe("AdminPanel component", () => {
     const saveButton = wrapper.find('button[title="Guardar y cerrar"]')
     await saveButton.trigger('click')
 
-    expect(JSON.parse(localStorage.getItem('himnario-settings')!).hymnalApiUrl).toBe('https://sdah.my.to')
+    expect(JSON.parse(localStorage.getItem('himnario-settings')!).hymnalApiUrl).toBe(
+      'https://sdah.my.to',
+    )
   })
 })

@@ -1,10 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import {
-  clearObsTheme,
-  obsThemeStatus,
-  receiveObsTheme,
-  themeMode,
-} from '../../src/theme/index'
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
+import { clearObsTheme, obsThemeStatus, receiveObsTheme, themeMode } from '../../src/theme/index'
 
 const event = (id: string, dark = true) => ({
   type: 'himnario.theme',

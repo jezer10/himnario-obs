@@ -1,4 +1,4 @@
-export function debounce (fn: Function, wait: number) {
+export function debounce(fn: Function, wait: number) {
   let timer: ReturnType<typeof setTimeout>
   return function (...args: any[]) {
     if (timer) {

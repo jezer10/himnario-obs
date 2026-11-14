@@ -18,7 +18,4 @@ const maskable = svg
   .replace('rx="112"', 'rx="0"')
   .replace('<path', '<g transform="translate(51.2 51.2) scale(.8)"><path')
   .replace('</svg>', '</g></svg>')
-writeFileSync(
-  'public/icons/icon-maskable-512.png',
-  new Resvg(maskable).render().asPng(),
-)
+writeFileSync('public/icons/icon-maskable-512.png', new Resvg(maskable).render().asPng())

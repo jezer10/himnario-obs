@@ -1,11 +1,23 @@
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
+import { defineConfig, lazyPlugins } from 'vite-plus'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
+  fmt: {
+    singleQuote: true,
+    semi: false,
+    trailingComma: 'all',
+    ignorePatterns: ['.agents/**', '.impeccable/**', 'skills-lock.json'],
+  },
+  test: { environment: 'happy-dom', setupFiles: ['./tests/setup.ts'] },
+  lint: {
+    jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
+    rules: { 'vite-plus/prefer-vite-plus-imports': 'error' },
+    options: { typeAware: true, typeCheck: true },
+  },
+  plugins: lazyPlugins(() => [
     vue(),
     tailwindcss(),
     VitePWA({
@@ -19,8 +31,7 @@ export default defineConfig({
         id: './',
         name: 'Himnario Adventista Broadcast',
         short_name: 'Himnario',
-        description:
-          'Himnos, letras y música para acompañar tus reuniones y controlar OBS.',
+        description: 'Himnos, letras y música para acompañar tus reuniones y controlar OBS.',
         lang: 'es',
         start_url: './',
         scope: './',
@@ -42,5 +53,5 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,woff,woff2,ttf,svg,png}'],
       },
     }),
-  ],
+  ]),
 })

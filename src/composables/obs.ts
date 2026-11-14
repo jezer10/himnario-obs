@@ -53,8 +53,10 @@ export function useObs() {
       await setSourceText(title ? 'himno_numero' : 'verso_numero', number)
       await setSourceText(title ? 'himno_titulo' : 'verso_contenido', text)
       for (const [name, visible] of [
-        ['himno_numero', title], ['himno_titulo', title],
-        ['verso_numero', !title], ['verso_contenido', !title],
+        ['himno_numero', title],
+        ['himno_titulo', title],
+        ['verso_numero', !title],
+        ['verso_contenido', !title],
       ] as const) {
         await setSourceVisibility(name, visible, sceneName)
       }
@@ -95,9 +97,7 @@ export function useObs() {
         eventSubscriptions: EventSubscription.All | EventSubscription.Vendors,
       })
       await getScenes()
-      if (
-        obsStore.sceneList.find((s) => s.sceneName === store.onSearchHymnScene)
-      ) {
+      if (obsStore.sceneList.find((s) => s.sceneName === store.onSearchHymnScene)) {
         sceneStatus.scene = true
         await getSceneItems(store.onSearchHymnScene)
       } else {
@@ -166,12 +166,15 @@ export function useObs() {
     // Set source list
     obsStore.sourceList = sceneItems
     const sources = {
-      himnoNumero: 'himno_numero', himnoTitulo: 'himno_titulo',
-      versoNumero: 'verso_numero', versoContenido: 'verso_contenido',
+      himnoNumero: 'himno_numero',
+      himnoTitulo: 'himno_titulo',
+      versoNumero: 'verso_numero',
+      versoContenido: 'verso_contenido',
     } as const
     for (const key of Object.keys(sources) as (keyof typeof sources)[]) {
-      sceneStatus.source[key] = sceneItems.some(item =>
-        item.sourceName === sources[key] && isTextInput(item.inputKind))
+      sceneStatus.source[key] = sceneItems.some(
+        (item) => item.sourceName === sources[key] && isTextInput(item.inputKind),
+      )
     }
   }
 
@@ -179,7 +182,7 @@ export function useObs() {
     const deadline = Date.now() + 30_000
     do {
       // OBS may acknowledge the request before the first transition frame.
-      await new Promise(resolve => setTimeout(resolve, 50))
+      await new Promise((resolve) => setTimeout(resolve, 50))
       const { transitionCursor } = await obs.call('GetCurrentSceneTransitionCursor')
       if (!(transitionCursor > 0 && transitionCursor < 1)) return
     } while (Date.now() < deadline)
@@ -205,13 +208,20 @@ export function useObs() {
       const latest = await obs.call('GetSceneList')
       // OBS's "swap preview/program" option can replace Preview after the fade.
       // Restore it only if it still shows the scene our refresh put there.
-      if (latest.currentProgramSceneName === sceneName && latest.currentPreviewSceneName === sceneName) {
+      if (
+        latest.currentProgramSceneName === sceneName &&
+        latest.currentPreviewSceneName === sceneName
+      ) {
         await obs.call('SetCurrentPreviewScene', { sceneName: currentPreviewSceneName })
       }
     }
   }
 
-  async function setSourceVisibility(sourceName: string, visible: boolean, sceneName = store.onSearchHymnScene) {
+  async function setSourceVisibility(
+    sourceName: string,
+    visible: boolean,
+    sceneName = store.onSearchHymnScene,
+  ) {
     const sceneItem = obsStore.sourceList.find((s) => s.sourceName === sourceName)
     if (!sceneItem) return
     await obs.call('SetSceneItemEnabled', {
@@ -235,17 +245,15 @@ export function useObs() {
   }
 
   async function createSource(
-    inputName:
-      | 'himno_numero'
-      | 'himno_titulo'
-      | 'verso_numero'
-      | 'verso_contenido',
+    inputName: 'himno_numero' | 'himno_titulo' | 'verso_numero' | 'verso_contenido',
   ) {
     try {
       const { inputKinds } = await obs.call('GetInputKindList')
       const inputKind = inputKinds.filter(isTextInput).sort((a, b) => {
         const family = Number(b.startsWith('text_gdiplus')) - Number(a.startsWith('text_gdiplus'))
-        return family || Number(b.match(/_v(\d+)$/)?.[1] ?? 0) - Number(a.match(/_v(\d+)$/)?.[1] ?? 0)
+        return (
+          family || Number(b.match(/_v(\d+)$/)?.[1] ?? 0) - Number(a.match(/_v(\d+)$/)?.[1] ?? 0)
+        )
       })[0]
       if (!inputKind) throw new Error('OBS no ofrece un tipo de fuente de texto compatible.')
       await obs.call('CreateInput', {
@@ -254,7 +262,9 @@ export function useObs() {
         inputKind,
       })
     } catch (error) {
-      throw new Error(`No se pudo crear «${inputName}»: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(
+        `No se pudo crear «${inputName}»: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
   }
 

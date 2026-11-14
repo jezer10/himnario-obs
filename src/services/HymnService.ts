@@ -10,9 +10,7 @@ const sHymn = {
     return response.json()
   },
   async byNumber(_number: number, host = defaultValues.hymnalApiUrl): Promise<HymnSequence> {
-    const url = `${
-      host
-    }/hymn/${_number}`
+    const url = `${host}/hymn/${_number}`
     const response = await Fetch(url)
     if (response.status === 404) {
       throw new Error('Himno no encontrado')

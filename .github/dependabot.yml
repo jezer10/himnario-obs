@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: America/Lima
+    open-pull-requests-limit: 10
+    groups:
+      vite-plus:
+        patterns:
+          - vite-plus
+          - '@voidzero-dev/vite-plus-core'
+          - vite
+          - vitest
+          - '@vitest/*'
+      dependencies:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
