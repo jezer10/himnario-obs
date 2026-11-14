@@ -1,8 +1,32 @@
-import { type Ref, ref } from 'vue'
+import { type Ref, ref, onBeforeUnmount } from 'vue'
 
 export function usePlayer() {
   const player: Ref<HTMLAudioElement | null> = ref(null)
   const currentTime = ref(0)
+  let frame = 0
+  const cleanup: (() => void)[] = []
+  function syncTime() {
+    const time = player.value?.currentTime
+    if (time !== undefined && Number.isFinite(time)) currentTime.value = time
+  }
+  function stopFrames() {
+    cancelAnimationFrame(frame)
+    frame = 0
+    syncTime()
+  }
+  function startFrames() {
+    stopFrames()
+    const tick = () => {
+      syncTime()
+      const audio = player.value
+      frame = audio && !audio.paused && !audio.ended ? requestAnimationFrame(tick) : 0
+    }
+    frame = requestAnimationFrame(tick)
+  }
+  onBeforeUnmount(() => {
+    stopFrames()
+    cleanup.forEach(remove => remove())
+  })
 
   function load() {
     player.value?.load()
@@ -49,19 +73,29 @@ export function usePlayer() {
   }
 
   function onTimeUpdate(callback: () => void) {
-    player.value?.addEventListener('timeupdate', () => {
-      if (!player.value) {
-        return
-      }
-      currentTime.value = player.value.currentTime
-      callback()
-    })
+    const audio = player.value
+    if (!audio) return
+    const update = () => { syncTime(); callback() }
+    const listeners: [string, EventListener][] = [
+      ['timeupdate', update],
+      ['playing', startFrames],
+      ['pause', stopFrames],
+      ['waiting', stopFrames],
+      ['ended', stopFrames],
+      ['emptied', stopFrames],
+      ['seeking', syncTime],
+      ['seeked', syncTime],
+    ]
+    listeners.forEach(([event, handler]) => audio.addEventListener(event, handler))
+    cleanup.push(() => listeners.forEach(([event, handler]) => audio.removeEventListener(event, handler)))
+    if (!audio.paused && !audio.ended) startFrames()
   }
 
   function onEnded(callback: () => void) {
-    player.value?.addEventListener('ended', callback)
+    const audio = player.value
+    audio?.addEventListener('ended', callback)
+    cleanup.push(() => audio?.removeEventListener('ended', callback))
   }
-
   return {
     player,
     currentTime,

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import AdminPanel from '../../src/components/AdminPanel.vue'
+import InputSlider from '../../src/components/commons/InputSlider.vue'
 import sHymn from '../../src/services/HymnService'
 import OBSWebSocket from 'obs-websocket-js'
 import { usePlaylistsStore } from '../../src/playlists'
@@ -110,6 +111,34 @@ describe("AdminPanel component", () => {
       inputName: 'verso_contenido', inputSettings: { text: 'Segunda estrofa' },
     })
     wrapper.get('audio').element.currentTime = 2
+    await wrapper.get('audio').trigger('timeupdate')
+    await flushPromises()
+    expect(wrapper.get('.active-verse').text()).toBe('Primera estrofa')
+    const audio = wrapper.get('audio').element
+    Object.defineProperty(audio, 'duration', { configurable: true, value: 60 })
+    Object.defineProperty(audio, 'paused', { configurable: true, value: false })
+    await wrapper.get('audio').trigger('loadedmetadata')
+    const progress = wrapper.findAllComponents(InputSlider).find(slider => slider.props('label') === 'Progreso del himno')!
+    store.autodriveVerses = false
+    progress.vm.$emit('slidestart')
+    progress.vm.$emit('update:modelValue', 25)
+    await flushPromises()
+    expect(audio.currentTime).toBe(25)
+    expect(store.autodriveVerses).toBe(true)
+    expect(wrapper.get('.active-verse').text()).toBe('Segunda estrofa')
+    // Audio updates must not pull the lyrics away from the drag preview.
+    await wrapper.get('audio').trigger('timeupdate')
+    expect(wrapper.get('.active-verse').text()).toBe('Segunda estrofa')
+    progress.vm.$emit('update:modelValue', 0)
+    await flushPromises()
+    expect(wrapper.get('.active-verse').text()).toBe('Primera estrofa')
+    progress.vm.$emit('update:modelValue', 25)
+    progress.vm.$emit('slideend', 25)
+    await flushPromises()
+    expect(audio.currentTime).toBe(25)
+    expect(audio.playbackRate).toBe(1)
+    expect(wrapper.get('.active-verse').text()).toBe('Segunda estrofa')
+    audio.currentTime = 2
     await wrapper.get('audio').trigger('timeupdate')
     await flushPromises()
     expect(wrapper.get('.active-verse').text()).toBe('Primera estrofa')

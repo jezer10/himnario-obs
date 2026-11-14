@@ -49,7 +49,15 @@ const { onTimeUpdate, onEnded, player: playerElement, ...player } = usePlayer()
 
 const playing = ref(false)
 const duration = ref(0)
-const { displayTime, start: startSeek, seek, commit: commitSeek, cancel: cancelSeek } = useScrub(playerElement, player.currentTime, duration)
+const { displayTime, start: startSeek, seek: scrubSeek, commit: commitSeek, cancel: cancelSeek } = useScrub(playerElement, player.currentTime, duration)
+function seek(value: number) {
+  if (!duration.value || !Number.isFinite(value)) return
+  store.autodriveVerses = true
+  scrubSeek(value)
+  handleMusicTimestamp()
+}
+// Follow the cursor preview during a drag, then the real audio time on release.
+watch(displayTime, () => handleMusicTimestamp())
 const volume = ref(1)
 const muted = ref(false)
 const volumeOpen = ref(false)
@@ -62,13 +70,12 @@ const lyricPadding = ref({ top: 0, bottom: 0 })
 let lyricObserver: ResizeObserver | undefined
 let cancelScroll: (() => void) | undefined
 let centerRequest = 0
-let animateVerseClick = false
 
 function stopLyricMotion() {
   cancelScroll?.()
   cancelScroll = undefined
 }
-async function centerActiveLyric(animate = false, userRequested = false) {
+async function centerActiveLyric(animate = false) {
   const request = ++centerRequest
   stopLyricMotion()
   const viewport = lyricsViewport.value
@@ -86,8 +93,7 @@ async function centerActiveLyric(animate = false, userRequested = false) {
   const target = Math.max(0, Math.min(viewport.scrollHeight - viewport.clientHeight,
     viewport.scrollTop + relativeTop - Math.max(16, (viewport.clientHeight - active.offsetHeight) / 2)))
   const start = viewport.scrollTop
-  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  if (!animate || (reducedMotion && !userRequested) || Math.abs(target - start) < 1) {
+  if (!animate || Math.abs(target - start) < 1) {
     viewport.scrollTop = target
     return
   }
@@ -146,10 +152,8 @@ const lyricLines = computed(() => (hymnData.value?.sequence ?? []).map((step, in
   return { index, content: verse?.contents.find(c => c.id === step.verseContentId)?.content ?? '' }
 }))
 watch(hymnIndex, async () => {
-  const fromClick = animateVerseClick
-  animateVerseClick = false
   await nextTick()
-  await centerActiveLyric(true, fromClick)
+  await centerActiveLyric(true)
 })
 watch(hymnData, async () => {
   await nextTick()
@@ -171,10 +175,9 @@ function selectVerse(index: number) {
   }
   store.autodriveVerses = true
   if (hymnIndex.value === index + 1) {
-    void centerActiveLyric(true, true)
+    void centerActiveLyric(true)
     void showVerse(index)
   } else {
-    animateVerseClick = true
     hymnIndex.value = index + 1
   }
 }
@@ -231,9 +234,10 @@ function handleMusicTimestamp() {
     return
   }
   const nextSequence = hymnData.value?.sequence
-    .filter((v) => Number.isFinite(v.timestamp) && v.timestamp >= 0 && v.timestamp - 0.5 < player.currentTime.value)
+    .filter((v) => Number.isFinite(v.timestamp) && v.timestamp >= 0 && v.timestamp - 0.5 < displayTime.value)
     .reverse()[0]
   if (!nextSequence) {
+    if (hymnData.value?.sequence.length) hymnIndex.value = 1
     return
   }
   if (!hymnData.value) {

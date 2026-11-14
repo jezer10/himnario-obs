@@ -145,7 +145,7 @@ El ancho de hasta 380 px reduce relleno y separaciones. La altura de hasta 460 p
 
 La cabecera presenta número y título una sola vez, junto al punto de conexión y las acciones de búsqueda y ajustes. La búsqueda se cierra tras seleccionar un himno y puede reabrirse. El primer verso aparece de inmediato; no se añaden etiquetas de vista previa, contadores ni ayuda persistente. Los versos vecinos conservan el tamaño de la letra activa, con menor peso y contraste.
 
-La lista completa de estrofas conserva nodos estables. Al cambiar de verso, el scroll llega al centro durante 560 ms con desaceleración cuártica; el color y la opacidad cambian durante 400 ms. Un avance rápido cancela la animación anterior y retoma desde la posición actual. Rueda, tacto o teclado interrumpen el movimiento. Al cargar un himno, redimensionar o activar movimiento reducido, el centrado es inmediato. El área sigue siendo desplazable y accesible por teclado, pero no muestra barra de desplazamiento. El contenido demasiado alto permanece recorrible.
+La lista completa de estrofas conserva nodos estables. Al cambiar de verso, el scroll llega al centro durante 560 ms con desaceleración cuártica; el color y la opacidad cambian durante 400 ms. Un avance rápido cancela la animación anterior y retoma desde la posición actual. Rueda, tacto o teclado interrumpen el movimiento. Al cargar un himno o redimensionar, el centrado es inmediato. El área sigue siendo desplazable y accesible por teclado, pero no muestra barra de desplazamiento. El contenido demasiado alto permanece recorrible.
 
 ## Elevation & Depth
 
@@ -190,4 +190,4 @@ En el viewport de letra el contorno se coloca dentro con separación de −3 px.
 - **Don't** depender de una descarga de fuente en tiempo de ejecución: el archivo y su licencia se distribuyen localmente.
 
 
-Los clics explícitos en versos animan el centrado durante 560 ms incluso con movimiento reducido, por preferencia del usuario. El avance automático conserva la preferencia del sistema. El volumen usa un asa siempre visible de 18 px; el progreso mantiene su asa de 10 px visible solo al interactuar.
+Tanto los clics en versos como el avance automático animan el centrado durante 560 ms, por preferencia explícita del usuario, incluso con movimiento reducido. Volumen y progreso comparten línea de 4 px y asa de 10 px, oculta en reposo y visible con hover, foco o arrastre.

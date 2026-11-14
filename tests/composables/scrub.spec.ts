@@ -11,20 +11,22 @@ function setup(playing = true) {
   const wrapper = mount({ setup() { scrub = useScrub(ref(element), time, ref(180)); return () => null } })
   return { element, time, scrub, wrapper }
 }
-describe('continuous forward scrub', () => {
-  it('accelerates without repeatedly seeking and commits the release position', () => {
+describe('immediate audio scrub', () => {
+  it('seeks on every drag update while preserving playback speed', () => {
     const { element, scrub } = setup()
     scrub.start()
     scrub.seek(10)
+    expect(element.currentTime).toBe(10)
     scrub.seek(30)
-    expect(element.playbackRate).toBe(2)
-    expect(element.currentTime).toBe(0)
+    expect(element.playbackRate).toBe(1)
+    expect(element.currentTime).toBe(30)
+    expect(element.paused).toBe(false)
     expect(scrub.displayTime.value).toBe(30)
     scrub.commit(35)
     expect(element.currentTime).toBe(35)
     expect(element.playbackRate).toBe(1)
   })
-  it('seeks backwards normally and restores the original rate', () => {
+  it('seeks backwards while preserving the original rate', () => {
     const { element, scrub } = setup()
     element.playbackRate = 1.25
     scrub.start()
@@ -44,15 +46,17 @@ describe('continuous forward scrub', () => {
     scrub.seek(45)
     expect(element.currentTime).toBe(45)
   })
-  it('restores playback speed on cancellation and unmount', () => {
+  it('releases the preview on cancellation and unmount without undoing the seek', () => {
     const { element, scrub, wrapper } = setup()
     scrub.start()
     scrub.seek(30)
     scrub.cancel()
+    expect(element.currentTime).toBe(30)
     expect(element.playbackRate).toBe(1)
     scrub.start()
     scrub.seek(60)
     wrapper.unmount()
+    expect(element.currentTime).toBe(60)
     expect(element.playbackRate).toBe(1)
   })
 })
