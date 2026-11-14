@@ -13,5 +13,9 @@
   --color-status-danger: var(--p-button-danger-background);
   --color-obs-selection: var(--p-highlight-background);
 }
-@custom-variant compact { @media (max-width: 360px) { @slot; } }
+@custom-variant compact {
+  @media (max-width: 360px) {
+    @slot;
+  }
+}
 @custom-variant spacious (@media (min-width: 800px) and (min-height: 600px));

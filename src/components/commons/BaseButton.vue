@@ -12,12 +12,7 @@ withDefaults(
 </script>
 
 <template>
-  <Button
-    :aria-label="title"
-    :title
-    :type
-    size="small" severity="secondary" class="shrink-0"
-  >
+  <Button :aria-label="title" :title :type size="small" severity="secondary" class="shrink-0">
     <slot />
   </Button>
 </template>

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import OBSWebSocket from 'obs-websocket-js'
 import { useObs } from '../../src/composables/obs'
 import { useSettingsStore } from '../../src/store'
@@ -9,7 +9,9 @@ let program = 'Himnario'
 let preview = 'Himnario'
 let api: ReturnType<typeof useObs>
 const call = vi.spyOn(OBSWebSocket.prototype, 'call')
-const connectSocket = vi.spyOn(OBSWebSocket.prototype, 'connect').mockResolvedValue(undefined as never)
+const connectSocket = vi
+  .spyOn(OBSWebSocket.prototype, 'connect')
+  .mockResolvedValue(undefined as never)
 vi.spyOn(OBSWebSocket.prototype, 'disconnect').mockResolvedValue()
 
 afterEach(async () => {
@@ -23,8 +25,16 @@ beforeEach(async () => {
   preview = 'Himnario'
   call.mockReset()
   call.mockImplementation(async (request) => {
-    if (request === 'GetSceneList') return { scenes: [{ sceneName: 'Himnario' }], currentProgramSceneName: program, currentPreviewSceneName: preview } as never
-    if (request === 'GetSceneItemList') return { sceneItems: names.map((sourceName, sceneItemId) => ({ sourceName, sceneItemId })) } as never
+    if (request === 'GetSceneList')
+      return {
+        scenes: [{ sceneName: 'Himnario' }],
+        currentProgramSceneName: program,
+        currentPreviewSceneName: preview,
+      } as never
+    if (request === 'GetSceneItemList')
+      return {
+        sceneItems: names.map((sourceName, sceneItemId) => ({ sourceName, sceneItemId })),
+      } as never
     if (request === 'GetStudioModeEnabled') return { studioModeEnabled: studio } as never
     if (request === 'GetCurrentProgramScene') return { currentProgramSceneName: program } as never
     if (request === 'GetCurrentPreviewScene') return { currentPreviewSceneName: preview } as never
@@ -51,7 +61,11 @@ describe('Hymn output in normal and studio modes', () => {
   it('reconnects after the socket closes', async () => {
     vi.useFakeTimers()
     const socket = connectSocket.mock.contexts.at(-1) as OBSWebSocket
-    socket.emit('ConnectionClosed', { code: 1006, message: 'Connection lost' })
+    socket.emit('ConnectionClosed', {
+      name: 'OBSWebSocketError',
+      code: 1006,
+      message: 'Connection lost',
+    })
     expect(api.connected.value).toBe(false)
     await vi.advanceTimersByTimeAsync(3000)
     expect(api.connected.value).toBe(true)
@@ -64,7 +78,11 @@ describe('Hymn output in normal and studio modes', () => {
     await api.connect()
     useSettingsStore().obsWebsocketUrl = 'localhost:4456'
     await api.reconnect()
-    expect(connectSocket).toHaveBeenLastCalledWith('ws://localhost:4456', undefined, expect.anything())
+    expect(connectSocket).toHaveBeenLastCalledWith(
+      'ws://localhost:4456',
+      undefined,
+      expect.anything(),
+    )
     expect(api.connected.value).toBe(true)
     const attempts = connectSocket.mock.calls.length
     await vi.advanceTimersByTimeAsync(6000)
@@ -75,8 +93,9 @@ describe('Hymn output in normal and studio modes', () => {
     await api.displayHymn(true, '1', 'Título')
     await api.displayHymn(false, '1', 'Estrofa')
     const visibility = call.mock.calls.filter(([name]) => name === 'SetSceneItemEnabled')
-    expect(visibility.map(([, data]) => (data as { sceneItemEnabled: boolean }).sceneItemEnabled))
-      .toEqual([true, true, false, false, false, false, true, true])
+    expect(
+      visibility.map(([, data]) => (data as { sceneItemEnabled: boolean }).sceneItemEnabled),
+    ).toEqual([true, true, false, false, false, false, true, true])
     expect(call).not.toHaveBeenCalledWith('SetCurrentProgramScene', expect.anything())
   })
 
@@ -91,19 +110,26 @@ describe('Hymn output in normal and studio modes', () => {
     expect(call).not.toHaveBeenCalledWith('SetCurrentPreviewScene', expect.anything())
   })
 
-  it.each([false, true])('prepares the hymn without replacing another program scene with studio=%s', async (mode) => {
-    studio = mode
-    program = 'Cámara'
-    await api.displayHymn(true, '1', 'Título')
-    expect(call).toHaveBeenCalledWith('SetInputSettings', expect.anything())
-    expect(call).not.toHaveBeenCalledWith('SetCurrentProgramScene', expect.anything())
-  })
+  it.each([false, true])(
+    'prepares the hymn without replacing another program scene with studio=%s',
+    async (mode) => {
+      studio = mode
+      program = 'Cámara'
+      await api.displayHymn(true, '1', 'Título')
+      expect(call).toHaveBeenCalledWith('SetInputSettings', expect.anything())
+      expect(call).not.toHaveBeenCalledWith('SetCurrentProgramScene', expect.anything())
+    },
+  )
 
   it('changes visibility in the owning group for grouped text sources', async () => {
     const original = call.getMockImplementation()!
     call.mockImplementation(async (request, data) => {
-      if (request === 'GetSceneItemList') return { sceneItems: [{ sourceName: 'Textos', isGroup: true }] } as never
-      if (request === 'GetGroupSceneItemList') return { sceneItems: names.map((sourceName, sceneItemId) => ({ sourceName, sceneItemId })) } as never
+      if (request === 'GetSceneItemList')
+        return { sceneItems: [{ sourceName: 'Textos', isGroup: true }] } as never
+      if (request === 'GetGroupSceneItemList')
+        return {
+          sceneItems: names.map((sourceName, sceneItemId) => ({ sourceName, sceneItemId })),
+        } as never
       return original(request, data)
     })
     await api.displayHymn(false, '1', 'Estrofa')
@@ -142,12 +168,17 @@ describe('Hymn output in normal and studio modes', () => {
     let remaining = 2
     const original = call.getMockImplementation()!
     call.mockImplementation(async (request, data) => {
-      if (request === 'GetCurrentSceneTransitionCursor' && remaining-- > 0) return { transitionCursor: 0.5 } as never
+      if (request === 'GetCurrentSceneTransitionCursor' && remaining-- > 0)
+        return { transitionCursor: 0.5 } as never
       return original(request, data)
     })
     await api.displayHymn(true, '1', 'Título')
     const publishIndex = call.mock.calls.findIndex(([name]) => name === 'SetCurrentProgramScene')
-    expect(call.mock.calls.slice(0, publishIndex).filter(([name]) => name === 'GetCurrentSceneTransitionCursor')).toHaveLength(3)
+    expect(
+      call.mock.calls
+        .slice(0, publishIndex)
+        .filter(([name]) => name === 'GetCurrentSceneTransitionCursor'),
+    ).toHaveLength(3)
   })
 
   it.each([false, true])('honors explicit scene switching with studio=%s', async (mode) => {
@@ -160,10 +191,16 @@ describe('Hymn output in normal and studio modes', () => {
 
   it('serializes rapid updates and writes all text before publishing', async () => {
     studio = true
-    await Promise.all([api.displayHymn(true, '1', 'Título'), api.displayHymn(false, '2', 'Estrofa')])
+    await Promise.all([
+      api.displayHymn(true, '1', 'Título'),
+      api.displayHymn(false, '2', 'Estrofa'),
+    ])
     const requests = call.mock.calls
     const firstPublish = requests.findIndex(([name]) => name === 'SetCurrentProgramScene')
-    const verseWrite = requests.findIndex(([name, data]) => name === 'SetInputSettings' && (data as { inputName: string }).inputName === 'verso_numero')
+    const verseWrite = requests.findIndex(
+      ([name, data]) =>
+        name === 'SetInputSettings' && (data as { inputName: string }).inputName === 'verso_numero',
+    )
     expect(firstPublish).toBeLessThan(verseWrite)
     expect(requests.filter(([name]) => name === 'SetCurrentProgramScene')).toHaveLength(2)
   })
@@ -181,22 +218,33 @@ describe('Hymn output in normal and studio modes', () => {
   })
 })
 
- describe('Text source compatibility', () => {
-  it.each(['text_gdiplus_v3', 'text_gdiplus_v2', 'text_ft2_source_v2'])('creates and validates %s', async (inputKind) => {
-    const original = call.getMockImplementation()!
-    call.mockImplementation(async (request, data) => {
-      if (request === 'GetInputKindList') return { inputKinds: ['image_source', inputKind] } as never
-      if (request === 'GetSceneItemList') return { sceneItems: names.map(sourceName => ({ sourceName, inputKind })) } as never
-      return original(request, data)
-    })
-    await api.createSource('himno_numero')
-    expect(call).toHaveBeenCalledWith('CreateInput', { sceneName: 'Himnario', inputName: 'himno_numero', inputKind })
-    await api.getSceneItems('Himnario')
-    const { useObsStore } = await import('../../src/store')
-    expect(Object.values(useObsStore().sceneStatus.source).every(Boolean)).toBe(true)
-  })
+describe('Text source compatibility', () => {
+  it.each(['text_gdiplus_v3', 'text_gdiplus_v2', 'text_ft2_source_v2'])(
+    'creates and validates %s',
+    async (inputKind) => {
+      const original = call.getMockImplementation()!
+      call.mockImplementation(async (request, data) => {
+        if (request === 'GetInputKindList')
+          return { inputKinds: ['image_source', inputKind] } as never
+        if (request === 'GetSceneItemList')
+          return { sceneItems: names.map((sourceName) => ({ sourceName, inputKind })) } as never
+        return original(request, data)
+      })
+      await api.createSource('himno_numero')
+      expect(call).toHaveBeenCalledWith('CreateInput', {
+        sceneName: 'Himnario',
+        inputName: 'himno_numero',
+        inputKind,
+      })
+      await api.getSceneItems('Himnario')
+      const { useObsStore } = await import('../../src/store')
+      expect(Object.values(useObsStore().sceneStatus.source).every(Boolean)).toBe(true)
+    },
+  )
   it('rejects non-text sources with required names', async () => {
-    call.mockResolvedValue({ sceneItems: names.map(sourceName => ({ sourceName, inputKind: 'image_source' })) } as never)
+    call.mockResolvedValue({
+      sceneItems: names.map((sourceName) => ({ sourceName, inputKind: 'image_source' })),
+    } as never)
     await api.getSceneItems('Himnario')
     const { useObsStore } = await import('../../src/store')
     expect(Object.values(useObsStore().sceneStatus.source).some(Boolean)).toBe(false)
@@ -213,4 +261,4 @@ describe('Hymn output in normal and studio modes', () => {
     })
     await expect(api.createSource('himno_numero')).rejects.toThrow('himno_numero')
   })
- })
+})

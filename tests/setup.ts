@@ -1,5 +1,5 @@
 import PrimeVue from 'primevue/config'
-import { afterEach, beforeEach } from 'vitest'
+import { afterEach, beforeEach } from 'vite-plus/test'
 import { enableAutoUnmount } from '@vue/test-utils'
 
 import { config } from '@vue/test-utils'

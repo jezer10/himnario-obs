@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createApp, nextTick } from 'vue'
 import { createAppPinia } from '../src/pinia'
 import { settingsKey, useObsStore, useSettingsStore } from '../src/store'
