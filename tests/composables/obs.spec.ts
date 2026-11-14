@@ -48,6 +48,38 @@ beforeEach(async () => {
 })
 
 describe('Hymn output in normal and studio modes', () => {
+  it.each([false, true])(
+    'updates visible verses without transitioning or touching preview, auto-switch=%s',
+    async (autoSwitch) => {
+      studio = true
+      preview = 'Cámara'
+      useSettingsStore().onSearchSwitchToHymnScene = autoSwitch
+      const original = call.getMockImplementation()!
+      call.mockImplementation(async (request, data) => {
+        if (request === 'GetSceneItemList') {
+          return {
+            sceneItems: names.map((sourceName, sceneItemId) => ({
+              sourceName,
+              sceneItemId,
+              sceneItemEnabled: sourceName.startsWith('verso_'),
+            })),
+          } as never
+        }
+        return original(request, data)
+      })
+      await api.displayHymn(false, '2', 'Segundo verso')
+      await api.displayHymn(false, '3', 'Tercer verso')
+      expect(call).toHaveBeenCalledWith('SetInputSettings', {
+        inputName: 'verso_contenido',
+        inputSettings: { text: 'Tercer verso' },
+      })
+      expect(call).not.toHaveBeenCalledWith('SetSceneItemEnabled', expect.anything())
+      expect(call).not.toHaveBeenCalledWith('SetCurrentProgramScene', expect.anything())
+      expect(call).not.toHaveBeenCalledWith('SetCurrentPreviewScene', expect.anything())
+      expect(call).not.toHaveBeenCalledWith('TriggerStudioModeTransition')
+    },
+  )
+
   it('retries a failed connection automatically', async () => {
     vi.useFakeTimers()
     await api.disconnect()

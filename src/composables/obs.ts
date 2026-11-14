@@ -50,6 +50,7 @@ export function useObs() {
     const update = displayQueue.then(async () => {
       if (!connected.value || !sceneName) return
       await getSceneItems(sceneName)
+      let visibilityChanged = false
       await setSourceText(title ? 'himno_numero' : 'verso_numero', number)
       await setSourceText(title ? 'himno_titulo' : 'verso_contenido', text)
       for (const [name, visible] of [
@@ -58,15 +59,25 @@ export function useObs() {
         ['verso_numero', !title],
         ['verso_contenido', !title],
       ] as const) {
+        const item = obsStore.sourceList.find((source) => source.sourceName === name)
+        if (!item || item.sceneItemEnabled === visible) continue
+        visibilityChanged = true
         await setSourceVisibility(name, visible, sceneName)
       }
+      const { currentProgramSceneName } = await obs.call('GetCurrentProgramScene')
       if (switchToScene) {
-        await setCurrentScene(sceneName)
+        if (currentProgramSceneName !== sceneName) {
+          await setCurrentScene(sceneName)
+          return
+        }
+      }
+      // Text inputs are shared with Studio Mode's program copy. Updating a
+      // verse already on screen needs no scene transition (or preview swap).
+      if (!visibilityChanged) {
         return
       }
       const { studioModeEnabled } = await obs.call('GetStudioModeEnabled')
       if (!studioModeEnabled) return
-      const { currentProgramSceneName } = await obs.call('GetCurrentProgramScene')
       if (currentProgramSceneName === sceneName) {
         // Refresh the studio-mode copy of this scene, never transition whatever
         // unrelated scene the operator happens to have selected in Preview.
