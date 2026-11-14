@@ -37,3 +37,13 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# Local agent tooling
+/.agents/
+/.impeccable/
+/skills-lock.json
+
+# Local environment configuration
+.env
+.env.*
+!.env.example
