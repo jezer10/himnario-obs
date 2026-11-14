@@ -26,19 +26,14 @@ const keys = [
   'selection',
 ]
 function findPalette(id: string) {
-  return Object.hasOwn(palettes, id)
-    ? palettes[id as keyof typeof palettes]
-    : undefined
+  return Object.hasOwn(palettes, id) ? palettes[id as keyof typeof palettes] : undefined
 }
 
 function applyTheme() {
   const root = document.documentElement
   for (const key of keys) root.style.removeProperty(`--obs-${key}`)
   const automatic = themeMode.value === 'obs'
-  root.classList.toggle(
-    'dark',
-    automatic ? (snapshot?.dark ?? true) : themeMode.value === 'dark',
-  )
+  root.classList.toggle('dark', automatic ? (snapshot?.dark ?? true) : themeMode.value === 'dark')
   if (!automatic || !snapshot) return
   const palette = findPalette(snapshot.id)
   if (palette) {

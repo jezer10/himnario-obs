@@ -1,6 +1,10 @@
 import { computed, onBeforeUnmount, ref, type Ref } from 'vue'
 
-export function useScrub(audio: Ref<HTMLAudioElement | null>, currentTime: Ref<number>, duration: Ref<number>) {
+export function useScrub(
+  audio: Ref<HTMLAudioElement | null>,
+  currentTime: Ref<number>,
+  duration: Ref<number>,
+) {
   const preview = ref<number | null>(null)
   const displayTime = computed(() => preview.value ?? currentTime.value)
   let dragging = false

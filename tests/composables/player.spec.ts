@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { usePlayer } from '../../src/composables/player'
 
 afterEach(() => vi.unstubAllGlobals())
@@ -16,16 +16,18 @@ function setup() {
   Object.defineProperty(audio, 'paused', { configurable: true, value: false })
   const update = vi.fn()
   let player!: ReturnType<typeof usePlayer>
-  const wrapper = mount({ setup() {
-    player = usePlayer()
-    player.player.value = audio
-    player.onTimeUpdate(update)
-    return () => null
-  } })
+  const wrapper = mount({
+    setup() {
+      player = usePlayer()
+      player.player.value = audio
+      player.onTimeUpdate(update)
+      return () => null
+    },
+  })
   const tick = () => {
     const pending = [...frames.values()]
     frames.clear()
-    pending.forEach(callback => callback(0))
+    pending.forEach((callback) => callback(0))
   }
   return { audio, player, update, wrapper, frames, tick }
 }

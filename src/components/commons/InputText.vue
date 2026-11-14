@@ -15,11 +15,5 @@ const value = defineModel<string>()
 </script>
 
 <template>
-  <PrimeInputText
-    v-model="value"
-    :id
-    :placeholder
-    :type
-    size="small" class="min-w-0 w-full"
-  />
+  <PrimeInputText v-model="value" :id :placeholder :type size="small" class="min-w-0 w-full" />
 </template>

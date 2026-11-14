@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import AdminPanel from '../../src/components/AdminPanel.vue'
 import InputSlider from '../../src/components/commons/InputSlider.vue'
@@ -11,17 +11,21 @@ vi.spyOn(sHymn, 'all').mockResolvedValue([])
 vi.spyOn(sHymn, 'byNumber').mockResolvedValue({
   id: 25,
   number: 25,
-  title: "Siento la presencia del Señor",
-  mp3Url: "https://docs.google.com/uc?export=download&id=1LGqFVV0O72W3KGykavnu-WgB-NSm9Se_",
-  mp3UrlInstr: "https://docs.google.com/uc?export=download&id=18Gcl7OA_dSWx6ywFletCN4nGeBnhsleg",
-  mp3Filename: "025 - Siento la presencia del Senor.mp3",
+  title: 'Siento la presencia del Señor',
+  mp3Url: 'https://docs.google.com/uc?export=download&id=1LGqFVV0O72W3KGykavnu-WgB-NSm9Se_',
+  mp3UrlInstr: 'https://docs.google.com/uc?export=download&id=18Gcl7OA_dSWx6ywFletCN4nGeBnhsleg',
+  mp3Filename: '025 - Siento la presencia del Senor.mp3',
   verses: [],
-  sequence: []
+  sequence: [],
 })
 vi.spyOn(OBSWebSocket.prototype, 'connect').mockResolvedValue(undefined as any)
-vi.spyOn(OBSWebSocket.prototype, 'call').mockResolvedValue({ scenes: [], sceneItems: [], studioModeEnabled: false } as any)
+vi.spyOn(OBSWebSocket.prototype, 'call').mockResolvedValue({
+  scenes: [],
+  sceneItems: [],
+  studioModeEnabled: false,
+} as any)
 
-describe("AdminPanel component", () => {
+describe('AdminPanel component', () => {
   let wrapper: VueWrapper
 
   beforeEach(async () => {
@@ -37,8 +41,9 @@ describe("AdminPanel component", () => {
   })
 
   it('searches a hymn', async () => {
+    expect(wrapper.find('[role="combobox"]').exists()).toBe(false)
+    await wrapper.get('[title="Buscar himno"]').trigger('click')
     const numberInput = wrapper.get('[role="combobox"]')
-
 
     await numberInput.setValue('25')
     await wrapper.get('form').trigger('submit')
@@ -47,6 +52,7 @@ describe("AdminPanel component", () => {
     const hymnTitle = wrapper.get('[data-test="hymn-title"]')
 
     expect(hymnTitle.text()).toContain('Siento la presencia del Señor')
+    expect(wrapper.find('[role="combobox"]').exists()).toBe(false)
 
     expect(wrapper.get('[data-test="music-caption"]').text()).toContain('En pausa')
     await wrapper.get('audio').trigger('play')
@@ -56,7 +62,9 @@ describe("AdminPanel component", () => {
 
     const sourceAudio = wrapper.get('audio>source')
 
-    expect(sourceAudio.attributes('src')).toContain('025%20-%20Siento%20la%20presencia%20del%20Senor.mp3')
+    expect(sourceAudio.attributes('src')).toContain(
+      '025%20-%20Siento%20la%20presencia%20del%20Senor.mp3',
+    )
   })
 
   it('loads playlist entries paused and advances only on request', async () => {
@@ -87,7 +95,12 @@ describe("AdminPanel component", () => {
 
   it('seeks to a clicked verse and continues automatic lyric synchronization', async () => {
     vi.mocked(sHymn.byNumber).mockResolvedValueOnce({
-      id: 1, number: 1, title: 'Prueba', mp3Url: '', mp3UrlInstr: '', mp3Filename: '1.mp3',
+      id: 1,
+      number: 1,
+      title: 'Prueba',
+      mp3Url: '',
+      mp3UrlInstr: '',
+      mp3Filename: '1.mp3',
       verses: [
         { id: 1, number: 1, contents: [{ id: 1, content: 'Primera estrofa' }] },
         { id: 2, number: 2, contents: [{ id: 2, content: 'Segunda estrofa' }] },
@@ -97,6 +110,7 @@ describe("AdminPanel component", () => {
         { id: 2, timestamp: 20, verseId: 2, verseContentId: 2 },
       ],
     })
+    await wrapper.get('[title="Buscar himno"]').trigger('click')
     await wrapper.get('[role="combobox"]').setValue('1')
     await wrapper.get('form').trigger('submit')
     await flushPromises()
@@ -108,7 +122,8 @@ describe("AdminPanel component", () => {
     expect(store.autodriveVerses).toBe(true)
     expect(wrapper.get('audio').element.currentTime).toBe(20)
     expect(OBSWebSocket.prototype.call).toHaveBeenCalledWith('SetInputSettings', {
-      inputName: 'verso_contenido', inputSettings: { text: 'Segunda estrofa' },
+      inputName: 'verso_contenido',
+      inputSettings: { text: 'Segunda estrofa' },
     })
     wrapper.get('audio').element.currentTime = 2
     await wrapper.get('audio').trigger('timeupdate')
@@ -118,7 +133,9 @@ describe("AdminPanel component", () => {
     Object.defineProperty(audio, 'duration', { configurable: true, value: 60 })
     Object.defineProperty(audio, 'paused', { configurable: true, value: false })
     await wrapper.get('audio').trigger('loadedmetadata')
-    const progress = wrapper.findAllComponents(InputSlider).find(slider => slider.props('label') === 'Progreso del himno')!
+    const progress = wrapper
+      .findAllComponents(InputSlider)
+      .find((slider) => slider.props('label') === 'Progreso del himno')!
     store.autodriveVerses = false
     progress.vm.$emit('slidestart')
     progress.vm.$emit('update:modelValue', 25)
@@ -164,10 +181,13 @@ describe("AdminPanel component", () => {
   })
 
   it('reports playback failures without claiming music is playing', async () => {
+    await wrapper.get('[title="Buscar himno"]').trigger('click')
     await wrapper.get('[role="combobox"]').setValue('25')
     await wrapper.get('form').trigger('submit')
     await flushPromises()
-    vi.spyOn(wrapper.get('audio').element as HTMLAudioElement, 'play').mockRejectedValueOnce(new Error('unavailable'))
+    vi.spyOn(wrapper.get('audio').element as HTMLAudioElement, 'play').mockRejectedValueOnce(
+      new Error('unavailable'),
+    )
     await wrapper.get('[title="Reproducir música"]').trigger('click')
     await flushPromises()
     expect(wrapper.get('[role="alert"]').text()).toContain('No se pudo reproducir')
@@ -185,7 +205,7 @@ describe("AdminPanel component", () => {
     await connectButton.trigger('click')
     await flushPromises()
     await enableAutoplayButton.trigger('click')
-    
+
     expect(enableAutoplayButton.find('.bg-green').exists()).toBe(true)
     expect(wrapper.find('[title="Desactivar"]').exists()).toBe(true)
 
@@ -206,6 +226,9 @@ describe("AdminPanel component", () => {
   })
 
   it.skip('enables/disables controls when connected/disconnected', async () => {
+    const searchButton = wrapper.get('[title="Buscar himno"]')
+    expect(wrapper.find('[role="combobox"]').exists()).toBe(false)
+    await wrapper.get('[title="Buscar himno"]').trigger('click')
     const numberInput = wrapper.get('[role="combobox"]')
 
     const startButton = wrapper.get('[title="Principio"]')

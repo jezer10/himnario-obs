@@ -1,5 +1,5 @@
 import { VueWrapper, flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import HymnSearcherVue from '../../src/components/HymnSearcher.vue'
 import sHymn from '../../src/services/HymnService'
 
@@ -7,22 +7,22 @@ vi.spyOn(sHymn, 'all').mockResolvedValue([
   {
     id: 1,
     number: 1,
-    title: "Cantad Alegres",
-    mp3Filename: "cantad_alegres.mp3",
-    mp3Url: "https://example.com/cantad_alegres.mp3",
-    mp3UrlInstr: "https://example.com/cantad_alegres_instr.mp3",
+    title: 'Cantad Alegres',
+    mp3Filename: 'cantad_alegres.mp3',
+    mp3Url: 'https://example.com/cantad_alegres.mp3',
+    mp3UrlInstr: 'https://example.com/cantad_alegres_instr.mp3',
   },
   {
     id: 2,
     number: 2,
-    title: "Dá gloria al Señor",
-    mp3Filename: "cantad_alegres.mp3",
-    mp3Url: "https://example.com/cantad_alegres.mp3",
-    mp3UrlInstr: "https://example.com/cantad_alegres_instr.mp3",
-  }
+    title: 'Dá gloria al Señor',
+    mp3Filename: 'cantad_alegres.mp3',
+    mp3Url: 'https://example.com/cantad_alegres.mp3',
+    mp3UrlInstr: 'https://example.com/cantad_alegres_instr.mp3',
+  },
 ])
 
-describe("HymnSearcher component", () => {
+describe('HymnSearcher component', () => {
   let wrapper: VueWrapper
 
   beforeEach(async () => {
@@ -33,12 +33,12 @@ describe("HymnSearcher component", () => {
     await wrapper.get('[role="combobox"]').trigger('focus')
   })
 
-  it("has a list of hymns", () => {
+  it('has a list of hymns', () => {
     const hymns = wrapper.findAll('[data-test="hymn-item"]')
 
     expect(hymns).toHaveLength(2)
-    expect(hymns[0].text()).toContain("Cantad Alegres")
-    expect(hymns[1].text()).toContain("Dá gloria al Señor")
+    expect(hymns[0].text()).toContain('Cantad Alegres')
+    expect(hymns[1].text()).toContain('Dá gloria al Señor')
   })
 
   it('emits event when selecting a hymn', async () => {
@@ -54,45 +54,44 @@ describe("HymnSearcher component", () => {
   it('selects a number with the keyboard and closes with Escape', async () => {
     const input = wrapper.get('[role="combobox"]')
     await input.setValue('2')
-    await new Promise(resolve => setTimeout(resolve, 10))
+    await new Promise((resolve) => setTimeout(resolve, 10))
     await flushPromises()
     expect(wrapper.findAll('[role="option"]')).toHaveLength(1)
     await input.trigger('keydown', { key: 'ArrowDown', code: 'ArrowDown' })
     await input.trigger('keydown', { key: 'Enter', code: 'Enter' })
-    await new Promise(resolve => setTimeout(resolve, 10))
+    await new Promise((resolve) => setTimeout(resolve, 10))
     await flushPromises()
     expect(wrapper.emitted('onPlayHymn')?.[0]).toEqual([2])
     expect(input.attributes('aria-expanded')).toBe('false')
     await input.trigger('focus')
     await input.trigger('keydown', { key: 'Escape', code: 'Escape' })
-    await new Promise(resolve => setTimeout(resolve, 10))
+    await new Promise((resolve) => setTimeout(resolve, 10))
     await flushPromises()
     expect(input.attributes('aria-expanded')).toBe('false')
   })
 
-  describe("when searching", () => {
-    it("shows only the hymns that match the search", async () => {
+  describe('when searching', () => {
+    it('shows only the hymns that match the search', async () => {
       const search = wrapper.get('[data-test="search-hymn"]')
-      await search.setValue("Cantad Alegres")
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await search.setValue('Cantad Alegres')
+      await new Promise((resolve) => setTimeout(resolve, 10))
       await flushPromises()
-
 
       const hymns = wrapper.findAll('[data-test="hymn-item"]')
 
       expect(hymns).toHaveLength(1)
-      expect(hymns[0].text()).toContain("Cantad Alegres")
+      expect(hymns[0].text()).toContain('Cantad Alegres')
     })
 
-    it("is diacritics insensitive", async () => {
+    it('is diacritics insensitive', async () => {
       const search = wrapper.get('[data-test="search-hymn"]')
-      await search.setValue("da gloria al senor")
+      await search.setValue('da gloria al senor')
       await new Promise((resolve) => setTimeout(resolve, 300))
 
       const hymns = wrapper.findAll('[data-test="hymn-item"]')
 
       expect(hymns).toHaveLength(1)
-      expect(hymns[0].text()).toContain("Dá gloria al Señor")
+      expect(hymns[0].text()).toContain('Dá gloria al Señor')
     })
   })
 })

@@ -22,9 +22,13 @@ const playlistsOpen = ref(false)
 const playlistLoading = ref(false)
 const activePlaylistId = ref('')
 const activeEntryId = ref('')
-const activePlaylist = computed(() => playlists.lists.find(p => p.id === activePlaylistId.value))
-const playlistIndex = computed(() => activePlaylist.value?.entries.findIndex(e => e.id === activeEntryId.value) ?? -1)
-const nextPlaylistEntry = computed(() => playlistIndex.value < 0 ? undefined : activePlaylist.value?.entries[playlistIndex.value + 1])
+const activePlaylist = computed(() => playlists.lists.find((p) => p.id === activePlaylistId.value))
+const playlistIndex = computed(
+  () => activePlaylist.value?.entries.findIndex((e) => e.id === activeEntryId.value) ?? -1,
+)
+const nextPlaylistEntry = computed(() =>
+  playlistIndex.value < 0 ? undefined : activePlaylist.value?.entries[playlistIndex.value + 1],
+)
 async function selectPlaylistEntry(listId: string, entry: PlaylistEntry) {
   if (playlistLoading.value) return
   playlistLoading.value = true
@@ -33,15 +37,12 @@ async function selectPlaylistEntry(listId: string, entry: PlaylistEntry) {
       activePlaylistId.value = listId
       activeEntryId.value = entry.id
     }
-  } finally { playlistLoading.value = false }
+  } finally {
+    playlistLoading.value = false
+  }
 }
 
-const {
-  connect,
-  connected,
-  setCurrentScene,
-  displayHymn,
-} = useObs()
+const { connect, connected, setCurrentScene, displayHymn } = useObs()
 
 const { hymnIndex, hymnData, searchHymn, fileUrl } = useHymn()
 
@@ -49,7 +50,13 @@ const { onTimeUpdate, onEnded, player: playerElement, ...player } = usePlayer()
 
 const playing = ref(false)
 const duration = ref(0)
-const { displayTime, start: startSeek, seek: scrubSeek, commit: commitSeek, cancel: cancelSeek } = useScrub(playerElement, player.currentTime, duration)
+const {
+  displayTime,
+  start: startSeek,
+  seek: scrubSeek,
+  commit: commitSeek,
+  cancel: cancelSeek,
+} = useScrub(playerElement, player.currentTime, duration)
 function seek(value: number) {
   if (!duration.value || !Number.isFinite(value)) return
   store.autodriveVerses = true
@@ -90,8 +97,15 @@ async function centerActiveLyric(animate = false) {
   await nextTick()
   if (request !== centerRequest) return
   const relativeTop = active.getBoundingClientRect().top - viewport.getBoundingClientRect().top
-  const target = Math.max(0, Math.min(viewport.scrollHeight - viewport.clientHeight,
-    viewport.scrollTop + relativeTop - Math.max(16, (viewport.clientHeight - active.offsetHeight) / 2)))
+  const target = Math.max(
+    0,
+    Math.min(
+      viewport.scrollHeight - viewport.clientHeight,
+      viewport.scrollTop +
+        relativeTop -
+        Math.max(16, (viewport.clientHeight - active.offsetHeight) / 2),
+    ),
+  )
   const start = viewport.scrollTop
   if (!animate || Math.abs(target - start) < 1) {
     viewport.scrollTop = target
@@ -99,13 +113,19 @@ async function centerActiveLyric(animate = false) {
   }
   cancelScroll = animateScroll(viewport, target)
 }
-watch(lyricsViewport, (viewport) => {
-  lyricObserver?.disconnect()
-  if (viewport && typeof ResizeObserver !== 'undefined') {
-    lyricObserver = new ResizeObserver(() => { void centerActiveLyric() })
-    if (viewport.parentElement) lyricObserver.observe(viewport.parentElement)
-  }
-}, { flush: 'post' })
+watch(
+  lyricsViewport,
+  (viewport) => {
+    lyricObserver?.disconnect()
+    if (viewport && typeof ResizeObserver !== 'undefined') {
+      lyricObserver = new ResizeObserver(() => {
+        void centerActiveLyric()
+      })
+      if (viewport.parentElement) lyricObserver.observe(viewport.parentElement)
+    }
+  },
+  { flush: 'post' },
+)
 onBeforeUnmount(() => {
   centerRequest++
   stopLyricMotion()
@@ -116,7 +136,8 @@ async function updateObs(title: boolean, number: string, text: string) {
     await displayHymn(title, number, text)
     obsError.value = ''
   } catch {
-    obsError.value = 'No se pudo actualizar la salida de OBS. Revisa la conexión e intenta nuevamente.'
+    obsError.value =
+      'No se pudo actualizar la salida de OBS. Revisa la conexión e intenta nuevamente.'
   }
 }
 function formatTime(value: number) {
@@ -129,9 +150,16 @@ function updateDuration() {
 }
 async function togglePlayback() {
   if (!playerElement.value) return
-  if (!playerElement.value.paused) { playerElement.value.pause(); return }
+  if (!playerElement.value.paused) {
+    playerElement.value.pause()
+    return
+  }
   audioError.value = ''
-  try { await playerElement.value.play() } catch { audioError.value = 'No se pudo reproducir el audio.' }
+  try {
+    await playerElement.value.play()
+  } catch {
+    audioError.value = 'No se pudo reproducir el audio.'
+  }
 }
 function changeVolume(value: number) {
   if (!playerElement.value) return
@@ -144,13 +172,21 @@ function syncVolume() {
   muted.value = playerElement.value?.muted ?? false
 }
 function toggleMute() {
-  if (playerElement.value) { playerElement.value.muted = !playerElement.value.muted; syncVolume() }
+  if (playerElement.value) {
+    playerElement.value.muted = !playerElement.value.muted
+    syncVolume()
+  }
 }
 const activeVerseIndex = computed(() => Math.max(0, hymnIndex.value - 1))
-const lyricLines = computed(() => (hymnData.value?.sequence ?? []).map((step, index) => {
-  const verse = hymnData.value?.verses.find(v => v.id === step.verseId)
-  return { index, content: verse?.contents.find(c => c.id === step.verseContentId)?.content ?? '' }
-}))
+const lyricLines = computed(() =>
+  (hymnData.value?.sequence ?? []).map((step, index) => {
+    const verse = hymnData.value?.verses.find((v) => v.id === step.verseId)
+    return {
+      index,
+      content: verse?.contents.find((c) => c.id === step.verseContentId)?.content ?? '',
+    }
+  }),
+)
 watch(hymnIndex, async () => {
   await nextTick()
   await centerActiveLyric(true)
@@ -170,7 +206,8 @@ function selectVerse(index: number) {
     player.currentTime.value = target
     audioError.value = ''
   } catch {
-    audioError.value = 'No se pudo saltar a este verso. Espera a que cargue el audio e intenta de nuevo.'
+    audioError.value =
+      'No se pudo saltar a este verso. Espera a que cargue el audio e intenta de nuevo.'
     return
   }
   store.autodriveVerses = true
@@ -204,7 +241,7 @@ watch(hymnIndex, async (index) => {
 
 async function search(number: number | string, fromPlaylist = false) {
   try {
-    if (!await searchHymn(number)) return
+    if (!(await searchHymn(number))) return
   } catch {
     audioError.value = 'No se pudo cargar el himno. Intenta nuevamente.'
     return
@@ -234,7 +271,10 @@ function handleMusicTimestamp() {
     return
   }
   const nextSequence = hymnData.value?.sequence
-    .filter((v) => Number.isFinite(v.timestamp) && v.timestamp >= 0 && v.timestamp - 0.5 < displayTime.value)
+    .filter(
+      (v) =>
+        Number.isFinite(v.timestamp) && v.timestamp >= 0 && v.timestamp - 0.5 < displayTime.value,
+    )
     .reverse()[0]
   if (!nextSequence) {
     if (hymnData.value?.sequence.length) hymnIndex.value = 1
@@ -288,28 +328,82 @@ async function showVerse(index: number) {
   <main class="music-deck">
     <header class="deck-header">
       <div class="track-info">
-        <span class="track-version">{{ hymnData ? 'Himno ' + String(hymnData.number).padStart(3, '0') : 'Himnario' }}</span>
-        <h1 data-test="hymn-title" :title="hymnData?.title">{{ hymnData?.title || 'Elige un himno' }}</h1>
+        <span class="track-version">{{
+          hymnData ? 'Himno ' + String(hymnData.number).padStart(3, '0') : 'Himnario'
+        }}</span>
+        <h1 data-test="hymn-title" :title="hymnData?.title">
+          {{ hymnData?.title || 'Elige un himno' }}
+        </h1>
+      </div>
+      <div v-if="!playlistsOpen && searchOpen" id="hymn-search" class="deck-search">
+        <HymnSearcher @on-play-hymn="search" />
       </div>
       <div class="header-actions">
-        <span class="obs-status" :class="{ 'is-connected': connected }" role="status" :title="connected ? 'OBS conectado' : 'OBS sin conexión'" :aria-label="connected ? 'OBS conectado' : 'OBS sin conexión'"><span class="status-dot" aria-hidden="true" /></span>
-        <BaseButton title="Buscar himno" :aria-expanded="!playlistsOpen && (searchOpen || !hymnData)" aria-controls="hymn-search" @click="searchOpen = playlistsOpen || !searchOpen; playlistsOpen = false"><i class="pi pi-search" aria-hidden="true" /></BaseButton>
+        <span
+          class="obs-status"
+          :class="{ 'is-connected': connected }"
+          role="status"
+          :title="connected ? 'OBS conectado' : 'OBS sin conexión'"
+          :aria-label="connected ? 'OBS conectado' : 'OBS sin conexión'"
+          ><span class="status-dot" aria-hidden="true"
+        /></span>
+        <BaseButton
+          title="Buscar himno"
+          :aria-expanded="!playlistsOpen && searchOpen"
+          aria-controls="hymn-search"
+          @click="
+            searchOpen = playlistsOpen || !searchOpen;
+            playlistsOpen = false
+          "
+          ><i class="pi pi-search" aria-hidden="true"
+        /></BaseButton>
         <SettingsPanel />
-        <BaseButton title="Playlists" :aria-pressed="playlistsOpen" aria-controls="playlists-view" @click="playlistsOpen = !playlistsOpen"><i :class="playlistsOpen ? 'pi pi-align-left' : 'pi pi-list'" aria-hidden="true" /></BaseButton>
+        <BaseButton
+          title="Playlists"
+          :aria-pressed="playlistsOpen"
+          aria-controls="playlists-view"
+          @click="playlistsOpen = !playlistsOpen"
+          ><i :class="playlistsOpen ? 'pi pi-align-left' : 'pi pi-list'" aria-hidden="true"
+        /></BaseButton>
       </div>
       <SetupScene />
-      <div v-if="!playlistsOpen && (searchOpen || !hymnData)" id="hymn-search" class="deck-search"><HymnSearcher @on-play-hymn="search" /></div>
-      <span data-test="music-caption" class="sr-only" role="status">{{ !hymnData ? 'Sin selección' : playing ? 'Reproduciendo' : 'En pausa' }}</span>
+      <span data-test="music-caption" class="sr-only" role="status">{{
+        !hymnData ? 'Sin selección' : playing ? 'Reproduciendo' : 'En pausa'
+      }}</span>
     </header>
-    <PlaylistPanel v-if="playlistsOpen" id="playlists-view" :active-entry-id="activeEntryId" :busy="playlistLoading" @select="selectPlaylistEntry" />
+    <PlaylistPanel
+      v-if="playlistsOpen"
+      id="playlists-view"
+      :active-entry-id="activeEntryId"
+      :busy="playlistLoading"
+      @select="selectPlaylistEntry"
+    />
     <section v-else class="verse-preview" aria-label="Vista previa del himno">
-      <div ref="lyricsViewport" class="lyrics-scroll"
+      <div
+        ref="lyricsViewport"
+        class="lyrics-scroll"
         :style="{ paddingTop: lyricPadding.top + 'px', paddingBottom: lyricPadding.bottom + 'px' }"
-        tabindex="0" aria-label="Letra del verso seleccionado"
-        @wheel.passive="stopLyricMotion" @touchstart.passive="stopLyricMotion" @keydown="stopLyricMotion">
-        <button v-for="line in lyricLines" :key="line.index" type="button" class="lyric-line" @click="selectVerse(line.index)" :title="'Ir al verso ' + (line.index + 1) + ' · sincronizar música'"
-          :class="{ 'active-verse': line.index === activeVerseIndex, 'neighbor-verse': line.index !== activeVerseIndex }"
-          :aria-current="line.index === activeVerseIndex ? 'true' : undefined">{{ line.content }}</button>
+        tabindex="0"
+        aria-label="Letra del verso seleccionado"
+        @wheel.passive="stopLyricMotion"
+        @touchstart.passive="stopLyricMotion"
+        @keydown="stopLyricMotion"
+      >
+        <button
+          v-for="line in lyricLines"
+          :key="line.index"
+          type="button"
+          class="lyric-line"
+          @click="selectVerse(line.index)"
+          :title="'Ir al verso ' + (line.index + 1) + ' · sincronizar música'"
+          :class="{
+            'active-verse': line.index === activeVerseIndex,
+            'neighbor-verse': line.index !== activeVerseIndex,
+          }"
+          :aria-current="line.index === activeVerseIndex ? 'true' : undefined"
+        >
+          {{ line.content }}
+        </button>
         <div v-if="!lyricLines.length" class="preview-empty">
           <p>Busca un himno</p>
           <span>Por número o título</span>
@@ -319,41 +413,170 @@ async function showVerse(index: number) {
 
     <section class="deck-player" aria-label="Reproductor de música">
       <div v-if="activePlaylist && playlistIndex >= 0" class="playlist-navigation">
-        <span>{{ activePlaylist.name }} · {{ playlistIndex + 1 }}/{{ activePlaylist.entries.length }}</span>
-        <BaseButton :disabled="playlistLoading || !nextPlaylistEntry" title="Siguiente himno" @click="nextPlaylistEntry && selectPlaylistEntry(activePlaylistId, nextPlaylistEntry)">{{ playlistLoading ? 'Cargando…' : nextPlaylistEntry ? 'Siguiente himno' : 'Fin de la playlist' }}<i class="pi pi-angle-right" aria-hidden="true" /></BaseButton>
+        <span
+          >{{ activePlaylist.name }} · {{ playlistIndex + 1 }}/{{
+            activePlaylist.entries.length
+          }}</span
+        >
+        <BaseButton
+          :disabled="playlistLoading || !nextPlaylistEntry"
+          title="Siguiente himno"
+          @click="nextPlaylistEntry && selectPlaylistEntry(activePlaylistId, nextPlaylistEntry)"
+          >{{
+            playlistLoading
+              ? 'Cargando…'
+              : nextPlaylistEntry
+                ? 'Siguiente himno'
+                : 'Fin de la playlist'
+          }}<i class="pi pi-angle-right" aria-hidden="true"
+        /></BaseButton>
       </div>
-      <div class="seek-row flex items-center gap-1.5 text-[11px] tabular-nums [&_svg]:size-[18px]    ">
-        <InputSlider class="min-w-0 w-full flex-1 my-3 mx-2" label="Progreso del himno" :max="duration || 1" :step="0.1" :model-value="displayTime" :disabled="!duration" :value-text="formatTime(displayTime) + ' de ' + formatTime(duration)" @update:model-value="seek" @slidestart="startSeek" @slideend="commitSeek" @slidecancel="cancelSeek" />
-        <div class="relative shrink-0 justify-self-end">
-        <BaseButton class="grid place-items-center" title="Volumen" :aria-expanded="volumeOpen" aria-controls="volume-controls" @click="volumePopover?.toggle($event)">
-          <i :class="muted || volume === 0 ? 'pi pi-volume-off' : 'pi pi-volume-up'" aria-hidden="true" />
-        </BaseButton>
-        <Popover ref="volumePopover" id="volume-controls" aria-label="Ajustar volumen"  :pt="{ content: { class: 'flex items-center gap-2' } }" @show="volumeOpen = true" @hide="volumeOpen = false">
-        <BaseButton class="grid place-items-center" :title="muted ? 'Activar sonido' : 'Silenciar'" :aria-pressed="muted" @click="toggleMute">
-          <i :class="muted || volume === 0 ? 'pi pi-volume-off' : 'pi pi-volume-up'" aria-hidden="true" />
-        </BaseButton>
-        <InputSlider class="volume-slider w-[100px] mx-2" label="Volumen" :max="1" :step="0.01" :model-value="muted ? 0 : volume" :value-text="Math.round((muted ? 0 : volume) * 100) + '%'" @update:model-value="changeVolume" />
-        <BaseButton :disabled="!hymnData" title="Detener" @click="toHomeScene(true)"><i class="pi pi-stop" aria-hidden="true" /></BaseButton>
-        </Popover>
+      <div class="playback-controls">
+        <div
+          class="seek-row flex items-center gap-1.5 text-[11px] tabular-nums [&_svg]:size-[18px]"
+        >
+          <InputSlider
+            class="min-w-0 w-full flex-1 my-3 mx-2"
+            label="Progreso del himno"
+            :max="duration || 1"
+            :step="0.1"
+            :model-value="displayTime"
+            :disabled="!duration"
+            :value-text="formatTime(displayTime) + ' de ' + formatTime(duration)"
+            @update:model-value="seek"
+            @slidestart="startSeek"
+            @slideend="commitSeek"
+            @slidecancel="cancelSeek"
+          />
+          <div class="relative shrink-0 justify-self-end">
+            <BaseButton
+              class="grid place-items-center"
+              title="Volumen"
+              :aria-expanded="volumeOpen"
+              aria-controls="volume-controls"
+              @click="volumePopover?.toggle($event)"
+            >
+              <i
+                :class="muted || volume === 0 ? 'pi pi-volume-off' : 'pi pi-volume-up'"
+                aria-hidden="true"
+              />
+            </BaseButton>
+            <Popover
+              ref="volumePopover"
+              id="volume-controls"
+              aria-label="Ajustar volumen"
+              :pt="{ content: { class: 'flex items-center gap-2' } }"
+              @show="volumeOpen = true"
+              @hide="volumeOpen = false"
+            >
+              <BaseButton
+                class="grid place-items-center"
+                :title="muted ? 'Activar sonido' : 'Silenciar'"
+                :aria-pressed="muted"
+                @click="toggleMute"
+              >
+                <i
+                  :class="muted || volume === 0 ? 'pi pi-volume-off' : 'pi pi-volume-up'"
+                  aria-hidden="true"
+                />
+              </BaseButton>
+              <InputSlider
+                class="volume-slider w-[100px] mx-2"
+                label="Volumen"
+                :max="1"
+                :step="0.01"
+                :model-value="muted ? 0 : volume"
+                :value-text="Math.round((muted ? 0 : volume) * 100) + '%'"
+                @update:model-value="changeVolume"
+              />
+              <BaseButton :disabled="!hymnData" title="Detener" @click="toHomeScene(true)"
+                ><i class="pi pi-stop" aria-hidden="true"
+              /></BaseButton>
+            </Popover>
+          </div>
         </div>
-
-      </div>
-      <div class="time-row mt-[-3px] mb-1 flex justify-between pr-10 text-[11px] tabular-nums      text-obs-muted"><span>{{ formatTime(displayTime) }}</span><span>{{ formatTime(duration) }}</span></div>
-      <div class="transport-row grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 [&_svg]:size-[18px]  ">
-
-        <div class="flex items-center gap-1.5   " :title="controlHint">
-<BaseButton :disabled="!connected || !store.onSearchHymnScene || store.autodriveVerses || hymnIndex < 2" title="Verso anterior" @click="hymnIndex--"><i class="pi pi-step-backward" aria-hidden="true" /></BaseButton>
-        <BaseButton class="play-button" :disabled="!hymnData" :title="playing ? 'Pausar música' : 'Reproducir música'" @click="togglePlayback">
-          <i :class="playing ? 'pi pi-pause' : 'pi pi-play'" aria-hidden="true" /><span>{{ playing ? 'Pausa' : 'Reproducir' }}</span>
-        </BaseButton>
-<BaseButton :disabled="!connected || !store.onSearchHymnScene || store.autodriveVerses || (hymnData ? hymnIndex >= hymnData.sequence.length : true)" title="Verso siguiente" @click="hymnIndex++"><i class="pi pi-step-forward" aria-hidden="true" /></BaseButton>
+        <div
+          class="time-row mt-[-3px] mb-1 flex justify-between pr-10 text-[11px] tabular-nums text-obs-muted"
+        >
+          <span>{{ formatTime(displayTime) }}</span><span>{{ formatTime(duration) }}</span>
         </div>
-
+        <div
+          class="transport-row grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 [&_svg]:size-[18px]"
+        >
+          <div class="flex items-center gap-1.5" :title="controlHint">
+            <BaseButton
+              :disabled="
+                !connected || !store.onSearchHymnScene || store.autodriveVerses || hymnIndex < 2
+              "
+              title="Verso anterior"
+              @click="hymnIndex--"
+              ><i class="pi pi-step-backward" aria-hidden="true"
+            /></BaseButton>
+            <BaseButton
+              class="play-button"
+              :disabled="!hymnData"
+              :aria-label="playing ? 'Pausar música' : 'Reproducir música'"
+              :title="playing ? 'Pausar música' : 'Reproducir música'"
+              @click="togglePlayback"
+            >
+              <i :class="playing ? 'pi pi-pause' : 'pi pi-play'" aria-hidden="true" /><span>{{
+                playing ? 'Pausa' : 'Reproducir'
+              }}</span>
+            </BaseButton>
+            <BaseButton
+              :disabled="
+                !connected ||
+                !store.onSearchHymnScene ||
+                store.autodriveVerses ||
+                (hymnData ? hymnIndex >= hymnData.sequence.length : true)
+              "
+              title="Verso siguiente"
+              @click="hymnIndex++"
+              ><i class="pi pi-step-forward" aria-hidden="true"
+            /></BaseButton>
+          </div>
+        </div>
       </div>
-      <Message v-if="audioError" class="mt-1 text-[11px] leading-[1.3] " role="alert" severity="error" :closable="false">{{ audioError }}</Message>
-      <Message v-if="obsError" class="mt-1 text-[11px] leading-[1.3] " role="alert" severity="error" :closable="false">{{ obsError }}</Message>
-      <audio class="hidden" ref="playerElement" preload="auto" @loadedmetadata="updateDuration" @durationchange="updateDuration" @volumechange="syncVolume" @error="audioError = hymnData ? 'Audio no disponible. Intenta reproducir de nuevo.' : ''" @play="playing = true" @pause="cancelSeek(); playing = false" @emptied="cancelSeek(); playing = false; duration = 0" @ended="cancelSeek(); playing = false">
-        <source :src="hymnData && fileUrl()" type="audio/mpeg">
+      <Message
+        v-if="audioError"
+        class="mt-1 text-[11px] leading-[1.3]"
+        role="alert"
+        severity="error"
+        :closable="false"
+        >{{ audioError }}</Message
+      >
+      <Message
+        v-if="obsError"
+        class="mt-1 text-[11px] leading-[1.3]"
+        role="alert"
+        severity="error"
+        :closable="false"
+        >{{ obsError }}</Message
+      >
+      <audio
+        class="hidden"
+        ref="playerElement"
+        preload="auto"
+        @loadedmetadata="updateDuration"
+        @durationchange="updateDuration"
+        @volumechange="syncVolume"
+        @error="audioError = hymnData ? 'Audio no disponible. Intenta reproducir de nuevo.' : ''"
+        @play="playing = true"
+        @pause="
+          cancelSeek();
+          playing = false
+        "
+        @emptied="
+          cancelSeek();
+          playing = false;
+          duration = 0
+        "
+        @ended="
+          cancelSeek();
+          playing = false
+        "
+      >
+        <source :src="hymnData && fileUrl()" type="audio/mpeg" />
       </audio>
     </section>
   </main>

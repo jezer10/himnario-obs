@@ -7,13 +7,20 @@ import { createAppPinia } from './pinia'
 import { initializeTheme } from './theme'
 import 'primeicons/primeicons.css'
 import './styles/main.css'
+import './pwa'
 
 const app = createApp(App)
 app.use(createAppPinia())
 app.use(PiniaColada)
 app.use(PrimeVue, {
   ripple: true,
-  theme: { preset: ObsPreset, options: { darkModeSelector: '.dark', cssLayer: { name: 'primevue', order: 'theme, base, primevue, utilities' } } },
+  theme: {
+    preset: ObsPreset,
+    options: {
+      darkModeSelector: '.dark',
+      cssLayer: { name: 'primevue', order: 'theme, base, primevue, utilities' },
+    },
+  },
   license: import.meta.env.VITE_PRIMEUI_LICENSE || undefined,
 })
 initializeTheme()

@@ -1,5 +1,11 @@
 # Himnario Adventista Broadcast
 
+## Instalar como PWA y usar sin conexión
+
+La versión de producción incluye icono e instalación como aplicación. En **Configuración → Instalación y uso sin conexión** puedes descargar todas las letras y guardar el audio cantado e instrumental de cada himno que necesites. Espera la confirmación antes de desconectarte.
+
+Consulta la [guía de instalación y uso offline](docs/pwa.md) para instalación, requisitos y pruebas.
+
 ## Interfaz con PrimeVue 5
 
 La aplicación usa PrimeVue 5 con el tema oficial Aura y PrimeIcons. El modo claro/oscuro puede
@@ -107,6 +113,7 @@ modo normal como en Modo Estudio.
 La GUI tiene una configuración avanzada que puedes acceder desde el botón tuerca en la parte superior derecha de la GUI. En la configuración avanzada puedes establecer:
 
 ### Al buscar un himno
+
 - **Solo instrumental**: Melodía solo instrumental (si no está marcado, se reproducirá la melodía cantada)
 - **Autoreproducir música**: Auto reproduce la melodía
 - **Autoconducir versos**: Auto dirigir la letra del himno en pantalla
@@ -114,9 +121,11 @@ La GUI tiene una configuración avanzada que puedes acceder desde el botón tuer
 - **Escena de himno**: Escena donde se encuentran las fuentes que usará la GUI (puedes seleccionar la escena una vez que conectaste la GUI al OBS)
 
 ### Al terminar de reproducir un himno
+
 - **Cambiar a escena**: Cambiar a una escena específica (ninguna por defecto)
 
 ### Red
+
 - **URL de OBS Websocket**: Usar un servidor websocket de OBS Studio personalizado (por defecto usa localhost:4444)
 - **URL de host de música**: Usar un servidor de melodías personalizado (por defecto usa el del [Himnario Adventista API](https://github.com/jhormanrus/himnario-adventista-api))
 - **URL de API de himnario**: Usar un servidor de la API de Himnario Adventista personalizado (por defecto usa el [Himnario Adventista API](https://sdah.my.to/hymn))
@@ -125,28 +134,39 @@ La GUI está pensada para usarla online, pero gracias a la configuración avanza
 
 ## Desarrollo local
 
-Requisitos: Node.js 24 y pnpm 12.10.1 (fijado en `packageManager`).
+Requisitos: Node.js 24.11 o posterior de la rama 24 y pnpm 12.10.1 (fijado en `packageManager`).
+La herramienta unificada es [Vite Plus](https://viteplus.dev/guide), que incluye Vite, Vitest, Oxlint y Oxfmt.
+
+Instala la CLI en Windows con `irm https://vite.plus/ps1 | iex` y abre otra terminal.
+En macOS/Linux usa `curl -fsSL https://vite.plus | bash`.
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm dev
+vp install --frozen-lockfile
+vp dev
 ```
 
-- `pnpm build`: comprueba los tipos con vue-tsc y genera `dist/` con Vite.
-- `pnpm preview`: sirve la compilación localmente.
-- `pnpm test`: ejecuta las pruebas con Vitest y Happy DOM.
-- `pnpm test:watch`: ejecuta las pruebas en modo interactivo.
-- `pnpm lint`: ejecuta la configuración existente de Biome.
+- `vp run build`: comprueba los tipos Vue y genera `dist/`, incluido el service worker.
+- `vp preview`: sirve la compilación localmente.
+- `vp run test`: ejecuta las pruebas con Vitest y Happy DOM.
+- `vp run test:watch`: ejecuta las pruebas en modo interactivo.
+- `vp run check`: comprueba formato, lint, tipos TypeScript y componentes Vue.
+- `vp lint` / `vp lint --fix`: analiza el código con Oxlint.
+- `vp fmt` / `vp fmt --check`: aplica o verifica el formato con Oxfmt.
 
-La base es la plantilla oficial `vue-ts` de `create-vite@9.2.1`.
-`vite.config.ts`, `tsconfig.json`, `tsconfig.app.json` y
-`tsconfig.node.json` se conservan sin cambios respecto de esa plantilla.
-Los componentes y estilos del himnario sustituyen la pantalla de demostración.
-Tailwind se añade mediante `postcss.config.js`; Vitest tiene su propia
-configuración en `vitest.config.ts` y las pruebas están en `tests/`.
+Los scripts también funcionan con `pnpm`. Usa `vp run build` para incluir vue-tsc;
+`vp build` ejecuta únicamente la compilación de Vite.
+La configuración de Vue, Tailwind, PWA, pruebas, lint y formato está en `vite.config.ts`.
+Las pruebas están en `tests/`.
 
-Para agregar dependencias, usa `pnpm add` o `pnpm add -D` y guarda
-`pnpm-lock.yaml`.
+Para agregar dependencias, usa `vp add` o `vp add -D` y guarda `pnpm-lock.yaml`.
+`vp toolchain` muestra las versiones instaladas. `vp upgrade` actualiza la CLI global;
+para actualizar el proyecto usa `vp migrate --no-interactive --no-agent --no-editor --no-hooks`
+y ejecuta las comprobaciones anteriores. Conserva sincronizados los catálogos de
+`vite-plus` y `vite` (alias de `@voidzero-dev/vite-plus-core`) en `pnpm-workspace.yaml`.
+
+Dependabot revisa semanalmente las dependencias, los lunes a las 09:00 (Lima).
+Agrupa las herramientas de Vite Plus para actualizar sus versiones coordinadamente.
+La configuración se activa cuando `.github/dependabot.yml` llegue a la rama predeterminada de GitHub.
 
 ### Despliegue
 
@@ -220,18 +240,18 @@ el entorno real; no se consideran garantizadas por usar un navegador basado en C
 
 **Flujos y criterios de aceptación**
 
-| Flujo | Pasos a probar | Resultado esperado |
-| --- | --- | --- |
-| 1. Referencia con internet | Abrir el panel en OBS, buscar el himno y reproducir ambas variantes; probar letras y avance automático. | Confirmar que el contenido y el control de OBS funcionan antes de evaluar la descarga. |
-| 2. Descargar y comprobar | Descargar letras, tiempos y las variantes elegidas. Esperar la escritura y volver a leer los datos desde el almacenamiento. | Cada variante tiene un estado independiente. Solo se marca disponible el conjunto cuyos datos y audio se guardaron y verificaron. |
-| 3. Reproducir desde la copia | Cortar el acceso a internet manteniendo OBS y su WebSocket local activos. Volver a seleccionar el himno y reproducirlo desde el inicio; avanzar hacia el final. | Audio, letras y tiempos proceden de la copia local. El panel permite controlar OBS y no necesita el servidor externo para ese himno. |
-| 4. Recargar sin internet | Con la red aún desconectada, recargar el panel. | La interfaz abre, encuentra el himno descargado y reproduce su contenido. No basta con que siga funcionando una página ya cargada en memoria. |
-| 5. Reiniciar OBS sin internet | Cerrar OBS completamente, abrirlo de nuevo sin internet y cargar el mismo panel. | La interfaz y los datos persisten; se vuelve a comprobar la disponibilidad y se reproduce el himno. Repetir después de reiniciar la computadora. |
-| 6. Contenido ausente | Sin internet, buscar el himno reservado sin descargar o elegir una variante no guardada. | Mostrar que ese contenido no está disponible sin conexión, sin presentarlo como descargado ni quedar cargando indefinidamente. |
-| 7. Descarga interrumpida | Cortar internet a mitad de descarga; repetir cerrando OBS antes de terminar. Reconectar y reintentar. | Una descarga parcial nunca figura como verificada. El reintento completa una copia válida y no deja duplicados ni residuos parciales permanentes. |
-| 8. Fallos de origen o de integridad | Simular respuesta HTTP de error, archivo vacío, respuesta HTML en lugar de audio y archivo truncado o hash distinto al esperado. | Mostrar el error y permitir reintentar; no marcar éxito por llegar al 100 % de transferencia. |
-| 9. Falta de espacio y borrado | Simular un fallo de cuota/escritura. Borrar una descarga desde el prototipo y volver a consultar su estado. Probar limpieza de datos del navegador solo en el entorno de prueba. | Informar el fallo sin perder otras copias válidas; después del borrado no mostrar disponibilidad que ya no existe. |
-| 10. Actualización y recuperación | Recuperar internet, actualizar un himno y simular un fallo durante el reemplazo. Probar una actualización del panel conservando el origen. | Conservar la última copia válida hasta verificar la nueva; la actualización de la interfaz mantiene o migra los datos y sigue permitiendo el arranque sin conexión. |
+| Flujo                               | Pasos a probar                                                                                                                                                                   | Resultado esperado                                                                                                                                                  |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Referencia con internet          | Abrir el panel en OBS, buscar el himno y reproducir ambas variantes; probar letras y avance automático.                                                                          | Confirmar que el contenido y el control de OBS funcionan antes de evaluar la descarga.                                                                              |
+| 2. Descargar y comprobar            | Descargar letras, tiempos y las variantes elegidas. Esperar la escritura y volver a leer los datos desde el almacenamiento.                                                      | Cada variante tiene un estado independiente. Solo se marca disponible el conjunto cuyos datos y audio se guardaron y verificaron.                                   |
+| 3. Reproducir desde la copia        | Cortar el acceso a internet manteniendo OBS y su WebSocket local activos. Volver a seleccionar el himno y reproducirlo desde el inicio; avanzar hacia el final.                  | Audio, letras y tiempos proceden de la copia local. El panel permite controlar OBS y no necesita el servidor externo para ese himno.                                |
+| 4. Recargar sin internet            | Con la red aún desconectada, recargar el panel.                                                                                                                                  | La interfaz abre, encuentra el himno descargado y reproduce su contenido. No basta con que siga funcionando una página ya cargada en memoria.                       |
+| 5. Reiniciar OBS sin internet       | Cerrar OBS completamente, abrirlo de nuevo sin internet y cargar el mismo panel.                                                                                                 | La interfaz y los datos persisten; se vuelve a comprobar la disponibilidad y se reproduce el himno. Repetir después de reiniciar la computadora.                    |
+| 6. Contenido ausente                | Sin internet, buscar el himno reservado sin descargar o elegir una variante no guardada.                                                                                         | Mostrar que ese contenido no está disponible sin conexión, sin presentarlo como descargado ni quedar cargando indefinidamente.                                      |
+| 7. Descarga interrumpida            | Cortar internet a mitad de descarga; repetir cerrando OBS antes de terminar. Reconectar y reintentar.                                                                            | Una descarga parcial nunca figura como verificada. El reintento completa una copia válida y no deja duplicados ni residuos parciales permanentes.                   |
+| 8. Fallos de origen o de integridad | Simular respuesta HTTP de error, archivo vacío, respuesta HTML en lugar de audio y archivo truncado o hash distinto al esperado.                                                 | Mostrar el error y permitir reintentar; no marcar éxito por llegar al 100 % de transferencia.                                                                       |
+| 9. Falta de espacio y borrado       | Simular un fallo de cuota/escritura. Borrar una descarga desde el prototipo y volver a consultar su estado. Probar limpieza de datos del navegador solo en el entorno de prueba. | Informar el fallo sin perder otras copias válidas; después del borrado no mostrar disponibilidad que ya no existe.                                                  |
+| 10. Actualización y recuperación    | Recuperar internet, actualizar un himno y simular un fallo durante el reemplazo. Probar una actualización del panel conservando el origen.                                       | Conservar la última copia válida hasta verificar la nueva; la actualización de la interfaz mantiene o migra los datos y sigue permitiendo el arranque sin conexión. |
 
 **Alcance de la comprobación**
 

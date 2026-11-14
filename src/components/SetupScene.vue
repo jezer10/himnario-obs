@@ -33,9 +33,7 @@ on('SceneItemCreated', checkSource)
 on('SceneItemRemoved', checkSource)
 
 function checkScene({ scenes }: OBSEventTypes['SceneListChanged']) {
-  sceneStatus.scene = scenes.some(
-    (scene) => scene.sceneName === store.onSearchHymnScene,
-  )
+  sceneStatus.scene = scenes.some((scene) => scene.sceneName === store.onSearchHymnScene)
 }
 
 async function checkSource({
@@ -45,7 +43,8 @@ async function checkSource({
   if (sceneName !== store.onSearchHymnScene) {
     return
   }
-  if (!['verso_contenido', 'verso_numero', 'himno_titulo', 'himno_numero'].includes(sourceName)) return
+  if (!['verso_contenido', 'verso_numero', 'himno_titulo', 'himno_numero'].includes(sourceName))
+    return
   try {
     await getSceneItems(store.onSearchHymnScene)
   } catch (error) {
@@ -67,7 +66,9 @@ async function createSceneAndSources() {
     if (!sceneStatus.source.himnoNumero) await createSource('himno_numero')
     await getSceneItems(store.onSearchHymnScene)
     if (!Object.values(sceneStatus.source).every(Boolean)) {
-      throw new Error('No se pudieron verificar todas las fuentes de texto. Revisa los recursos de la escena.')
+      throw new Error(
+        'No se pudieron verificar todas las fuentes de texto. Revisa los recursos de la escena.',
+      )
     }
   } catch (error) {
     creationError.value = error instanceof Error ? error.message : String(error)
@@ -75,21 +76,26 @@ async function createSceneAndSources() {
     creating.value = false
   }
 }
-
 </script>
 
 <template>
   <BasicDialog ref="dialog" title="" data-test="settings">
     <template v-slot:header>
       <div class="flex min-w-0 items-center gap-2 [overflow-wrap:anywhere]">
-        <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.scene? 'bg-status-success' : 'bg-status-danger'"></div>
+        <div
+          class="shrink-0 rounded-full w-2 h-2"
+          :class="sceneStatus.scene ? 'bg-status-success' : 'bg-status-danger'"
+        ></div>
         {{ store.onSearchHymnScene }}
       </div>
     </template>
     <div class="space-y-1">
       <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoNumero? 'bg-status-success' : 'bg-status-danger'"></div>
+          <div
+            class="shrink-0 rounded-full w-2 h-2"
+            :class="sceneStatus.source.himnoNumero ? 'bg-status-success' : 'bg-status-danger'"
+          ></div>
         </div>
         <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           himno_numero
@@ -98,7 +104,10 @@ async function createSceneAndSources() {
       </div>
       <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.himnoTitulo? 'bg-status-success' : 'bg-status-danger'"></div>
+          <div
+            class="shrink-0 rounded-full w-2 h-2"
+            :class="sceneStatus.source.himnoTitulo ? 'bg-status-success' : 'bg-status-danger'"
+          ></div>
         </div>
         <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           himno_titulo
@@ -107,7 +116,10 @@ async function createSceneAndSources() {
       </div>
       <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoNumero? 'bg-status-success' : 'bg-status-danger'"></div>
+          <div
+            class="shrink-0 rounded-full w-2 h-2"
+            :class="sceneStatus.source.versoNumero ? 'bg-status-success' : 'bg-status-danger'"
+          ></div>
         </div>
         <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           verso_numero
@@ -116,21 +128,29 @@ async function createSceneAndSources() {
       </div>
       <div class="bg-obs-control w-full flex items-stretch rounded-sm divide-x divide-obs-base">
         <div class="px-2 py-1 flex items-center">
-          <div class="shrink-0 rounded-full w-2 h-2" :class="sceneStatus.source.versoContenido? 'bg-status-success' : 'bg-status-danger'"></div>
+          <div
+            class="shrink-0 rounded-full w-2 h-2"
+            :class="sceneStatus.source.versoContenido ? 'bg-status-success' : 'bg-status-danger'"
+          ></div>
         </div>
         <div class="px-2 py-1 min-w-0 grow flex flex-wrap gap-x-2">
           verso_contenido
           <span class="ms-auto opacity-60">Texto</span>
         </div>
       </div>
-      <p v-if="!sceneStatus.scene" class="pt-1 pb-2">La escena «{{ store.onSearchHymnScene }}» no existe en OBS. Selecciona tu escena en Configuración o créala aquí.</p>
-      <p v-else-if="Object.values(sceneStatus.source).some(v => !v)" class="pt-1 pb-2">Faltan fuentes de texto en esta escena. Puedes crearlas aquí.</p>
+      <p v-if="!sceneStatus.scene" class="pt-1 pb-2">
+        La escena «{{ store.onSearchHymnScene }}» no existe en OBS. Selecciona tu escena en
+        Configuración o créala aquí.
+      </p>
+      <p v-else-if="Object.values(sceneStatus.source).some((v) => !v)" class="pt-1 pb-2">
+        Faltan fuentes de texto en esta escena. Puedes crearlas aquí.
+      </p>
       <p v-else class="pt-1">✅ Todos los recursos están listos</p>
     </div>
     <template v-slot:footer>
       <Message v-if="creationError" severity="error" :closable="false">{{ creationError }}</Message>
       <BaseButton
-        v-if="!sceneStatus.scene || Object.values(sceneStatus.source).some(v => !v)"
+        v-if="!sceneStatus.scene || Object.values(sceneStatus.source).some((v) => !v)"
         class="ml-auto"
         :disabled="creating"
         @click="createSceneAndSources()"

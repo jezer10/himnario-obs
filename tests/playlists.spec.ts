@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { createApp } from 'vue'
 import { createAppPinia } from '../src/pinia'
 import { playlistsKey, usePlaylistsStore } from '../src/playlists'
@@ -35,7 +35,9 @@ describe('local playlists', () => {
 
   it('reports failed saves while keeping the list in memory', () => {
     const store = usePlaylistsStore()
-    const spy = vi.spyOn(localStorage, 'setItem').mockImplementation(() => { throw new Error('quota') })
+    const spy = vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('quota')
+    })
     store.create('Culto')
     expect(store.lists).toHaveLength(1)
     expect(store.storageError).toContain('No se pudieron guardar')

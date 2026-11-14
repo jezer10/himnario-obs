@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { useScrub } from '../../src/composables/scrub'
 
 function setup(playing = true) {
@@ -8,7 +8,12 @@ function setup(playing = true) {
   Object.defineProperty(element, 'paused', { configurable: true, value: !playing })
   const time = ref(0)
   let scrub!: ReturnType<typeof useScrub>
-  const wrapper = mount({ setup() { scrub = useScrub(ref(element), time, ref(180)); return () => null } })
+  const wrapper = mount({
+    setup() {
+      scrub = useScrub(ref(element), time, ref(180))
+      return () => null
+    },
+  })
   return { element, time, scrub, wrapper }
 }
 describe('immediate audio scrub', () => {
